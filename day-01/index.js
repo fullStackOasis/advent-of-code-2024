@@ -16,8 +16,6 @@ if (part != "1" && part != "2") {
 }
 
 
-
-
 const distance = (a, b) => {
     return Math.abs(a - b);
 };
@@ -66,9 +64,36 @@ const computeTotalDistance = (rightInts, leftInts) => {
   return totalDistance;
 };
 
+/**
+ * Returns the frequency of each item in the right list as a map of number to
+ * frequency.
+ *
+ * @param {*} rightInts
+ */
+const computeFrequency = (rightInts) => {
+  // frequency maps a number to a frequency of that number in the left list.
+  // e.g. if 3 occurs in the left list 10 times, then frequncy[3] is 10.
+  const frequency = {};
+  rightInts.forEach(el => {
+    if (!frequency[el]) {
+      frequency[el] = 0;
+    }
+    frequency[el]++;
+  });
+  return frequency;
+};
+
+
+
 const computeSimilarityScore = (rightInts, leftInts) => {
-  throw new Error(`incomplete`);
-  console.log(`Similarity score: ${totalDistance}`);
+  const frequency = computeFrequency(rightInts, leftInts);
+  let similarityScore = 0;
+  leftInts.forEach(rightInt => {
+    const multiplier = frequency[rightInt] || 0;
+    similarityScore += rightInt * multiplier;
+  });
+  console.log(`Similarity score: ${similarityScore}`);
+  return similarityScore;
 };
 
 const main = async (fileName) => {
