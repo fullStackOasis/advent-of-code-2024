@@ -1,13 +1,12 @@
 const fs = require("fs").promises;
-const readline = require("readline");
 
-// Create readline interface to read file name from stdin
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
+const fileName = process.argv[2];
 
-console.log("Please enter the file name:");
+if (!fileName) {
+  console.error('Error: Please provide a file name as a command-line argument.');
+  process.exit(1); // Exit with error code
+}
+
 
 const distance = (a, b) => {
     return Math.abs(a - b);
@@ -40,15 +39,13 @@ const readData = async (fileName) => {
     // console.log("Left Integers:", leftInts);
     // console.log("Right Integers:", rightInts);
 
-    rl.close();
   } catch (err) {
     console.error(`Error reading file: ${err.message}`);
-    rl.close();
   }
   return { leftInts, rightInts };
 };
 
-rl.on("line", async (fileName) => {
+const main = async (fileName) => {
   // Read the file
   const { rightInts, leftInts } = await readData(fileName);
   rightInts.sort(sorter);
@@ -58,4 +55,6 @@ rl.on("line", async (fileName) => {
     totalDistance += distance(rightInt, leftInts[i]);
   });
   console.log(`Total distance: ${totalDistance}`);
-});
+};
+
+main(fileName);
