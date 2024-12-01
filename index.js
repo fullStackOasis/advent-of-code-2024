@@ -9,6 +9,10 @@ const rl = readline.createInterface({
 
 console.log("Please enter the file name:");
 
+const distance = (a, b) => {
+    return Math.abs(a - b);
+};
+
 const sorter = (a, b) => {
   return a - b;
 };
@@ -51,4 +55,7 @@ rl.on("line", async (fileName) => {
   leftInts.sort(sorter);
   console.log(rightInts);
   console.log(leftInts);
+  rightInts.forEach((rightInt, i) => {
+    console.log(distance(rightInt, leftInts[i]));
+  });
 });
