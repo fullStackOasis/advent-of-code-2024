@@ -7,6 +7,16 @@ if (!fileName) {
   process.exit(1); // Exit with error code
 }
 
+// Part is a number, 1 or 2, meaning the "part" of the exercise to be completed.
+const part = process.argv[3];
+
+if (part != "1" && part != "2") {
+  console.error('Error: Please provide part (1 or 2) as a command-line argument.');
+  process.exit(1); // Exit with error code
+}
+
+
+
 
 const distance = (a, b) => {
     return Math.abs(a - b);
@@ -45,9 +55,7 @@ const readData = async (fileName) => {
   return { leftInts, rightInts };
 };
 
-const main = async (fileName) => {
-  // Read the file
-  const { rightInts, leftInts } = await readData(fileName);
+const computeTotalDistance = (rightInts, leftInts) => {
   rightInts.sort(sorter);
   leftInts.sort(sorter);
   let totalDistance = 0;
@@ -55,6 +63,22 @@ const main = async (fileName) => {
     totalDistance += distance(rightInt, leftInts[i]);
   });
   console.log(`Total distance: ${totalDistance}`);
+  return totalDistance;
+};
+
+const computeSimilarityScore = (rightInts, leftInts) => {
+  throw new Error(`incomplete`);
+  console.log(`Similarity score: ${totalDistance}`);
+};
+
+const main = async (fileName) => {
+  // Read the file
+  const { rightInts, leftInts } = await readData(fileName);
+  if (part == "1") {
+    computeTotalDistance(rightInts, leftInts);
+  } else if (part == "2") {
+    computeSimilarityScore(rightInts, leftInts);
+  }
 };
 
 main(fileName);
