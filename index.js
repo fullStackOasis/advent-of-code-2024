@@ -37,8 +37,8 @@ const readData = async (fileName) => {
     });
 
     // Print the results
-    console.log("Left Integers:", leftInts);
-    console.log("Right Integers:", rightInts);
+    // console.log("Left Integers:", leftInts);
+    // console.log("Right Integers:", rightInts);
 
     rl.close();
   } catch (err) {
@@ -53,9 +53,9 @@ rl.on("line", async (fileName) => {
   const { rightInts, leftInts } = await readData(fileName);
   rightInts.sort(sorter);
   leftInts.sort(sorter);
-  console.log(rightInts);
-  console.log(leftInts);
+  let totalDistance = 0;
   rightInts.forEach((rightInt, i) => {
-    console.log(distance(rightInt, leftInts[i]));
+    totalDistance += distance(rightInt, leftInts[i]);
   });
+  console.log(`Total distance: ${totalDistance}`);
 });
