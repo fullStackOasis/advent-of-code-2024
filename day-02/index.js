@@ -43,7 +43,6 @@ const readData = async (fileName) => {
         reports.push(report);
       }
     });
-
   } catch (err) {
     console.error(`Error reading file: ${err.message}`);
   }
@@ -61,9 +60,9 @@ const isDecreasing = (a, b) => {
 /**
  * Returns true if report is safe, false otherwise. See instructions.
  *
- * @param {*} report 
+ * @param {*} report
  * @param {*} i index of report in reports, used for debugging
- * @returns 
+ * @returns
  */
 const reportIsSafe = (report, i) => {
   const level0 = report[0];
@@ -99,6 +98,42 @@ const reportIsSafe = (report, i) => {
   return true;
 };
 
+/**
+ * Bludgeon the dampener solution.
+ * Call this method on a report that has already been found to be unsafe.
+ * If removing any single element from the array results in a new,
+ * safe array, then return true.
+ * If we try removing each individual element, and no resulting array is
+ * safe, then return false.
+ *
+ * "the same rules apply as before, except if removing a single level from an
+ * unsafe report would make it safe, the report instead counts as safe."
+ *
+ * @param {*} report an array of integers
+ * @param {*} j index used for debugging
+ * @returns isSafe, true or false
+ */
+const reportIsSafeWhenOneLevelRemoved = (report, j) => {
+  // Loop over all elements in the report.
+  // Create a new array by removing a single element.
+  // If any such new array is "safe", then mark this report as safe.
+  // Remember, the requirements are "if removing a single level from an
+  // unsafe report would make it safe, the report instead counts as safe."
+  const len = report.length;
+  // Consecutively remove one single element from the report, and search for a
+  // safe one.
+  let isSafe = false;
+  for (let i = 0; i < len; i++) {
+    const newReport = report.slice();
+    newReport.splice(i, 1);
+    if (reportIsSafe(newReport, i)) {
+      isSafe = true;
+      break;
+    }
+  }
+  return isSafe;
+};
+
 const main = async (fileName) => {
   // Read the file.
   // Comment: Instructions do not specify the number of reports or levels per
@@ -110,7 +145,16 @@ const main = async (fileName) => {
     reports.forEach((el, i) => (reportIsSafe(el, i) ? numSafe++ : undefined));
     console.log(`Number of safe reports: ${numSafe}`);
   } else if (part == "2") {
-    throw new Error(`Part 2 not yet implemented`);
+    let numSafe = 0;
+    reports.forEach((el, i) => {
+      if (reportIsSafe(el, i)) {
+        // This report is safe as it is.
+        numSafe++;
+      } else if (reportIsSafeWhenOneLevelRemoved(el, i)) {
+        numSafe++;
+      }
+    });
+    console.log(`Number of safe reports: ${numSafe}`);
   }
 };
 
