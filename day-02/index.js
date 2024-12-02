@@ -19,8 +19,8 @@ if (part != "1" && part != "2") {
   process.exit(1); // Exit with error code
 }
 
-const distance = (a, b) => {
-  return Math.abs(a - b);
+const distanceGreaterThan3 = (a, b) => {
+  return Math.abs(a - b) > 3;
 };
 
 /**
@@ -44,8 +44,6 @@ const readData = async (fileName) => {
       }
     });
 
-    // Print the results
-    console.log("reports:", reports);
   } catch (err) {
     console.error(`Error reading file: ${err.message}`);
   }
@@ -60,37 +58,57 @@ const isDecreasing = (a, b) => {
   return a > b;
 };
 
-const reportIsSafe = (report) => {
-  // Test first two elements to see if they are increasing or decreasing:
-  if (report[0] == report[1]) {
-    // If the two elements are equal, this is not a safe report.
+/**
+ * Returns true if report is safe, false otherwise. See instructions.
+ *
+ * @param {*} report 
+ * @param {*} i index of report in reports, used for debugging
+ * @returns 
+ */
+const reportIsSafe = (report, i) => {
+  const level0 = report[0];
+  const level1 = report[1];
+  // Test first two elements to see if they are increasing or decreasing.
+  // Also make sure they are not changing too much (by more than 3)
+  if (level0 == level1 || distanceGreaterThan3(level0, level1)) {
+    // If first two elements are equal, this is not a safe report.
     return false;
   }
-  // Check whether first two levels are increasing or decreasing.
-  const increasing = isIncreasing(report[0], report[1]);
-  // That determines whether the entire report needs to be increasing or not
+  /**
+   * Check whether first two levels are increasing or decreasing.
+   * That determines whether the entire report needs to be increasing or not.
+   **/
+  const increasing = isIncreasing(level0, level1);
   let isSafe = false;
   const len = report.length - 1;
-  for (let i = 0; i < len; i++) {
+  // Start with i set to 1 because first 2 elements already checked.
+  //
+  for (let i = 1; i < len; i++) {
+    const level = report[i];
+    const nextLevel = report[i + 1];
+    if (distanceGreaterThan3(level, nextLevel)) {
+      return false;
+    }
     isSafe = increasing
-      ? isIncreasing(report[i], report[i + 1])
-      : isDecreasing(report[i], report[i + 1]);
-    console.log(`${report[i]}, ${report[i + 1]} ${isSafe}`);
+      ? isIncreasing(level, nextLevel)
+      : isDecreasing(level, nextLevel);
     if (!isSafe) {
-      console.log(`is safe: ${isSafe}`);
       return false;
     }
   }
-  console.log(`is safe: ${isSafe}`);
-  return isSafe;
+  return true;
 };
 
 const main = async (fileName) => {
-  // Read the file
+  // Read the file.
+  // Comment: Instructions do not specify the number of reports or levels per
+  // report. We're making some reasonable assumptions: at least one report,
+  // at least 2 levels in a report.
   const { reports } = await readData(fileName);
-  reports.forEach((el) => reportIsSafe(el));
   if (part == "1") {
-    //computeTotalDistance(rightInts, leftInts);
+    let numSafe = 0;
+    reports.forEach((el, i) => (reportIsSafe(el, i) ? numSafe++ : undefined));
+    console.log(`Number of safe reports: ${numSafe}`);
   } else if (part == "2") {
     throw new Error(`Part 2 not yet implemented`);
   }
