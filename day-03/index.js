@@ -73,7 +73,6 @@ const multiplyMatchesThenAdd = (matches) => {
 const main = async (fileName) => {
   if (part == "1") {
     const { corrupted } = await readData(fileName);
-    console.log(corrupted);
     const matches = findMatches(corrupted);
     const total = multiplyMatchesThenAdd(matches);
     console.log(`total: ${total}`);
