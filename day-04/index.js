@@ -173,6 +173,46 @@ printArray = (lines) => {
   console.log();
 };
 
+/**
+ * A crosser is valid if char1 is "S" and char2 is "M" or vice versa.
+ * @param {*} char1
+ * @param {*} char2
+ */
+const isValidCrosser = (char1, char2) => {
+  return (char1 == "S" && char2 == "M") || (char1 == "M" && char2 == "S");
+};
+
+/**
+ * Search for MAS crossing another MAS at the "A",
+ * return the count of all such instances. Looks
+ * like only diagonal crossings are allowed.
+ *
+ * @param {*} lines
+ */
+const findMASCrossers = (lines) => {
+  // Search for "A".
+  // Check to see if upper right and lower left are "M"/"S"
+  // AND lower right and upper left are "M"/"S".
+  const n = lines.length - 1;
+  let counter = 0;
+  for (let x = 1; x < n; x++) {
+    // "A" must be at center so skip edges
+    for (let y = 1; y < n; y++) {
+      const letter = lines[x][y];
+      const upperLeft = lines[x - 1][y - 1];
+      const upperRight = lines[x + 1][y - 1];
+      const lowerLeft = lines[x - 1][y + 1];
+      const lowerRight = lines[x + 1][y + 1];
+      let isValid = letter == "A" && isValidCrosser(upperRight, lowerLeft) &&
+        isValidCrosser(upperLeft, lowerRight);
+      if (isValid) {
+        counter++;
+      }
+    }
+  }
+  return counter;
+};
+
 const main = async (fileName) => {
   const { lines } = await readData(fileName);
   printArray(lines);
@@ -185,7 +225,8 @@ const main = async (fileName) => {
       findXMASRightLeaningDiagonally(lines);
     console.log(`part 1: ${counter} instances of XMAS found`);
   } else if (part == "2") {
-    throw new Error(`not finished`);
+    const counter = findMASCrossers(lines);
+    console.log(`part 2: ${counter} instances of crossed MAS found`);
   }
 };
 
