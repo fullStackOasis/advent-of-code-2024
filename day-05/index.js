@@ -93,8 +93,6 @@ const computeCorrectlyOrderedUpdates = (rules, pages) => {
   pages.forEach((page, i) => {
     const result = isPageCorrectlyOrderedAccordingToRules(rules, page);
     if (result) { // This page is correctly ordered, so count its middle element
-      console.log(`Valid page`);
-      console.log(page);
       const index = (page.length-1)/2;
       sumMiddlePages += Number(page[index]);
     }
@@ -102,11 +100,19 @@ const computeCorrectlyOrderedUpdates = (rules, pages) => {
   return sumMiddlePages;
 };
 
+const validateHasOddLength = (page) => {
+  if (!(page.length % 2 == 1)) {
+    console.log(page);
+    throw new Error(`Page length not odd`);
+  }
+};
+
 const main = async (fileName) => {
   const { pageOrderingRules,
     pageNumbersOfUpdate } = await readData(fileName);
-  printArray(pageOrderingRules);
-  printArray(pageNumbersOfUpdate);
+  // printArray(pageOrderingRules);
+  pageNumbersOfUpdate.forEach(page => validateHasOddLength(page));
+  // printArray(pageNumbersOfUpdate);
 
   if (part == "1") {
     const sumMiddlePages = computeCorrectlyOrderedUpdates(pageOrderingRules, pageNumbersOfUpdate);
