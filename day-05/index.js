@@ -42,9 +42,9 @@ const readData = async (fileName) => {
         return;
       }
       if (readingRules) {
-        pageOrderingRules.push(row);
+        pageOrderingRules.push(row.split('|'));
       } else {
-        pageNumbersOfUpdate.push(row);
+        pageNumbersOfUpdate.push(row.split(','));
       }
     });
     return { pageOrderingRules, pageNumbersOfUpdate };
@@ -61,6 +61,47 @@ printArray = (lines) => {
   console.log();
 };
 
+/**
+ * Returns true if all the elements in the page satisfy all the rules.
+ *
+ * @param {*} rules array of 2-element arrays of string, [["47", "53"],...]
+ * @param {*} page array of string, assume odd number length ['75', '47',...]
+ * @returns 
+ */
+const isPageCorrectlyOrderedAccordingToRules = (rules, page) => {
+  const result = rules.filter(rule => {
+    // rule is an array of length 2, e.g. ["47", "53"]
+    const index0 = page.indexOf(rule[0]);
+    if (index0 < 0) return false; // irrelevant, not in array
+    const index1 = page.indexOf(rule[1]);
+    if (index1 < 0) return false; // irrelevant, not in array
+    if (index0 < index1) return false; // irrelevant, order is correct
+    // If you get here, the pages are both in the rule array, and they are
+    // ordered incorrectly.
+    return true; // result will have at least one element
+  });
+  // if no invalid rows were found, that means page is correctly ordered
+  // according to all rules. Return true in that case, otherwise return false.
+  return result.length == 0;
+};
+
+const computeCorrectlyOrderedUpdates = (rules, pages) => {
+  // rules contains pairs of numbers, the rules about page ordering
+  // pages contains an array of numbers, the pages in the update.
+  let sumMiddlePages = 0;
+  // Loop over all pages, looking for those that do not obey ordering rules.
+  pages.forEach((page, i) => {
+    const result = isPageCorrectlyOrderedAccordingToRules(rules, page);
+    if (result) { // This page is correctly ordered, so count its middle element
+      console.log(`Valid page`);
+      console.log(page);
+      const index = (page.length-1)/2;
+      sumMiddlePages += Number(page[index]);
+    }
+  });
+  return sumMiddlePages;
+};
+
 const main = async (fileName) => {
   const { pageOrderingRules,
     pageNumbersOfUpdate } = await readData(fileName);
@@ -68,7 +109,8 @@ const main = async (fileName) => {
   printArray(pageNumbersOfUpdate);
 
   if (part == "1") {
-    throw new Error('Part 1 not done');
+    const sumMiddlePages = computeCorrectlyOrderedUpdates(pageOrderingRules, pageNumbersOfUpdate);
+    console.log(`Sum of middle page numbers: ${sumMiddlePages}`);
   } else if (part == "2") {
     throw new Error('Part 2 not done');
   }
