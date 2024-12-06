@@ -186,8 +186,8 @@ const findGuard = (labMap) => {
 
 const main = async (fileName) => {
   const { labMap } = await readData(fileName);
+  const guard = findGuard(labMap);
   if (part == "1") {
-    const guard = findGuard(labMap);
     // The steps map has an "X" anywhere that the guard stepped.
     const len = labMap.length;
     const max = len;
@@ -211,7 +211,6 @@ const main = async (fileName) => {
       if (shouldMoveForward(guard, labMap)) {
         moveGuardForward(guard);
       } else {
-        // console.log(`Guard will be turned ${guard}`);
         turnGuard(guard);
       }
       isInLab = validPosition(guard);
@@ -232,7 +231,6 @@ const main = async (fileName) => {
           // process.stdout.write(stepsMap[k][m] + "");
         }
       }
-      // console.log();
     }
     console.log(`Found ${numX} positions.`);
     // In the example, the guard starts at position (6, 4)
