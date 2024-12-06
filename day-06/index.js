@@ -29,6 +29,17 @@ const FACING = {
   W: "?",
 };
 
+const DIRS = {
+  ">": "E",
+  "^": "N", 
+  "v": "S",
+  "?": "W",
+  E: ">",
+  N: "^",
+  S: "v",
+  W: "?",
+};
+
 /**
  * Return value is an Object with one element which is an array of arrays:
  * labMap.
@@ -59,10 +70,29 @@ const printArray = (lines) => {
 };
 
 const shouldMoveForward = (guard, labMap) => {
-  return false;
+  return true;
 };
 
-const moveGuardForward = (guard, labMap) => {};
+/**
+ * This function mutates the guard Object by changing either its x-position
+ * or its y-position. It does not change the "dir" property.
+ *
+ * @param {*} guard 
+ * @param {*} labMap 
+ * @returns undefined
+ */
+const moveGuardForward = (guard, labMap) => {
+  switch (guard["dir"]) {
+    case DIRS["E"]:
+      guard["x"]++;
+      break;
+    case DIRS["N"]:
+      guard["y"]--;
+      break;
+    default:
+  }
+  return;
+};
 
 /**
  * Returns the "guard" Object. A guard has:
@@ -86,7 +116,6 @@ const findGuard = (labMap) => {
       return found;
     });
   });
-  console.log(result);
   return result;
 };
 
@@ -94,13 +123,15 @@ const main = async (fileName) => {
   const { labMap } = await readData(fileName);
   if (part == "1") {
     const guard = findGuard(labMap);
-    console.log(guard);
+    console.log(`guard ${JSON.stringify(guard)}`);
     if (shouldMoveForward(guard, labMap)) {
       moveGuardForward(guard);
+      console.log(`guard ${JSON.stringify(guard)}`);
     }
+
     // printArray(labMap);
     // In the example, the guard starts at position (6, 4)
-    console.log(labMap[6][4]); // prints up array for guard symbol
+    // console.log(labMap[6][4]); // prints up array for guard symbol
   } else if (part == "2") {
   }
 };
