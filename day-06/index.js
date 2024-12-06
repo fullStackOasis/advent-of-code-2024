@@ -23,10 +23,10 @@ if (part != "1" && part != "2") {
 }
 
 const FACING = {
-  "E" : ">",
-  "N" : "^",
-  "S" : "v",
-  "W" : "?"
+  E: ">",
+  N: "^",
+  S: "v",
+  W: "?",
 };
 
 /**
@@ -58,14 +58,11 @@ const printArray = (lines) => {
   console.log();
 };
 
-
 const shouldMoveForward = (guard, labMap) => {
   return false;
 };
 
-const moveGuardForward = (guard, labMap) => {
-
-};
+const moveGuardForward = (guard, labMap) => {};
 
 /**
  * Returns the "guard" Object. A guard has:
@@ -73,8 +70,8 @@ const moveGuardForward = (guard, labMap) => {
  * "y" - it's y-position (location in the x,y array)
  * "dir" - a character that indicates which way it's pointing
  *
- * @param {*} labMap 
- * @returns 
+ * @param {*} labMap
+ * @returns
  */
 const findGuard = (labMap) => {
   const result = {};
@@ -84,7 +81,7 @@ const findGuard = (labMap) => {
       if (found) {
         result["x"] = i;
         result["y"] = j;
-        result["dir"] = item;      
+        result["dir"] = item;
       }
       return found;
     });
@@ -95,15 +92,15 @@ const findGuard = (labMap) => {
 
 const main = async (fileName) => {
   const { labMap } = await readData(fileName);
-  const guard = findGuard(labMap);
-  console.log(guard);
-  if (shouldMoveForward(guard, labMap)) {
-    moveGuardForward(guard);
-  }
-  // printArray(labMap);
-  // In the example, the guard starts at position (6, 4)
-  console.log(labMap[6][4]); // prints up array for guard symbol
   if (part == "1") {
+    const guard = findGuard(labMap);
+    console.log(guard);
+    if (shouldMoveForward(guard, labMap)) {
+      moveGuardForward(guard);
+    }
+    // printArray(labMap);
+    // In the example, the guard starts at position (6, 4)
+    console.log(labMap[6][4]); // prints up array for guard symbol
   } else if (part == "2") {
   }
 };
