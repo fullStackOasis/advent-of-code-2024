@@ -31,8 +31,8 @@ const FACING = {
 
 const DIRS = {
   ">": "E",
-  "^": "N", 
-  "v": "S",
+  "^": "N",
+  v: "S",
   "?": "W",
   E: ">",
   N: "^",
@@ -77,17 +77,19 @@ const shouldMoveForward = (guard, labMap) => {
  * This function mutates the guard Object by changing either its x-position
  * or its y-position. It does not change the "dir" property.
  *
- * @param {*} guard 
- * @param {*} labMap 
+ * @param {*} guard
+ * @param {*} labMap
  * @returns undefined
  */
 const moveGuardForward = (guard, labMap) => {
+  console.log(guard["dir"] + " " + DIRS["N"]);
   switch (guard["dir"]) {
     case DIRS["E"]:
-      guard["x"]++;
+      guard["y"]++;
       break;
     case DIRS["N"]:
-      guard["y"]--;
+      guard["x"]--;
+      console.log(guard);
       break;
     default:
   }
@@ -123,10 +125,32 @@ const main = async (fileName) => {
   const { labMap } = await readData(fileName);
   if (part == "1") {
     const guard = findGuard(labMap);
+    // The steps map has an "X" anywhere that the guard stepped.
+    const len = labMap.length;
+    const max = len;
+    const min = -1;
+    const stepsMap = new Array(len);
+    for (let i = 0; i < len; i++) {
+      stepsMap[i] = new Array(len);
+    }
     console.log(`guard ${JSON.stringify(guard)}`);
-    if (shouldMoveForward(guard, labMap)) {
-      moveGuardForward(guard);
-      console.log(`guard ${JSON.stringify(guard)}`);
+    const validPosition = (guard) => {
+      return (
+        guard["x"] < max &&
+        guard["x"] > min &&
+        guard["y"] < max &&
+        guard["y"] > min
+      );
+    };
+    let isInLab = validPosition(guard);
+    while (isInLab) {
+      if (shouldMoveForward(guard, labMap)) {
+        moveGuardForward(guard);
+      }
+      isInLab = validPosition(guard);
+      if (isInLab) {
+        stepsMap[guard["x"]][guard["y"]] = "X"; // mark guard's step with "X"
+      }
     }
 
     // printArray(labMap);
