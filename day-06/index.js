@@ -73,8 +73,33 @@ const printArray = (lines) => {
   console.log();
 };
 
+/**
+ * Returns true if there is an obstacle "#" in front of the guard.
+ * @param {*} guard
+ * @param {*} labMap
+ * @returns
+ */
 const shouldMoveForward = (guard, labMap) => {
-  return true;
+  console.log(labMap[guard["x"]][guard["y"]]);
+  // Figure out what is directly in front of guard.
+  let el;
+  switch (guard["dir"]) {
+    case DIRS["N"]: // guard is facing North
+      el = labMap[guard["x"]][guard["y"] + 1];
+      break;
+    case DIRS["E"]: // guard is facing East
+      el = labMap[guard["x"] + 1][guard["y"]];
+      break;
+    case DIRS["S"]: // guard is facing South
+      el = labMap[guard["x"]][guard["y"] - 1];
+      break;
+    case DIRS["W"]:
+      el = labMap[guard["x"] - 1][guard["y"]];
+      break;
+    default:
+  }
+  console.log(`el is ${el} guard is ${JSON.stringify(guard)}`);
+  return el != "#";
 };
 
 /**
@@ -86,14 +111,18 @@ const shouldMoveForward = (guard, labMap) => {
  * @returns undefined
  */
 const moveGuardForward = (guard, labMap) => {
-  console.log(guard["dir"] + " " + DIRS["N"]);
   switch (guard["dir"]) {
-    case DIRS["E"]:
+    case DIRS["N"]:
       guard["y"]++;
       break;
-    case DIRS["N"]:
+    case DIRS["E"]:
+      guard["x"]++;
+      break;
+    case DIRS["S"]:
+      guard["y"]--;
+      break;
+    case DIRS["W"]:
       guard["x"]--;
-      console.log(guard);
       break;
     default:
   }
@@ -130,19 +159,21 @@ const turnGuard = (guard, labMap) => {
  * Returns the "guard" Object. A guard has:
  * "x" - it's x-position
  * "y" - it's y-position (location in the x,y array)
+ * KEY!!! The lower left corner is (0, 0). The upper right is (max-1, max-1)
  * "dir" - a character that indicates which way it's pointing
  *
  * @param {*} labMap
  * @returns
  */
 const findGuard = (labMap) => {
+  const max = labMap.length - 1; // assume nxn
   const result = {};
   labMap.find((rows, i) => {
     return rows.find((item, j) => {
       const found = item != "." && item != "#";
       if (found) {
-        result["x"] = i;
-        result["y"] = j;
+        result["x"] = j;
+        result["y"] = max - i;
         result["dir"] = item;
       }
       return found;
@@ -173,16 +204,22 @@ const main = async (fileName) => {
       );
     };
     let isInLab = validPosition(guard);
+    console.log(isInLab);
+    let z = 0;
     while (isInLab) {
       if (shouldMoveForward(guard, labMap)) {
         moveGuardForward(guard);
       } else {
+        printArray(labMap);
+        console.log(`Guard will be turned ${guard}`);
         turnGuard(guard);
       }
       isInLab = validPosition(guard);
       if (isInLab) {
         stepsMap[guard["x"]][guard["y"]] = "X"; // mark guard's step with "X"
       }
+      console.log(guard);
+      if (z++ > 10) throw new Error(``);
     }
 
     printArray(stepsMap);
