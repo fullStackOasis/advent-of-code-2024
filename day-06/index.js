@@ -80,21 +80,29 @@ const printArray = (lines) => {
  * @returns
  */
 const shouldMoveForward = (guard, labMap) => {
-  console.log(labMap[guard["x"]][guard["y"]]);
   // Figure out what is directly in front of guard.
   let el;
+  const max = labMap.length - 1;
   switch (guard["dir"]) {
     case DIRS["N"]: // guard is facing North
-      el = labMap[guard["x"]][guard["y"] + 1];
+      if (guard["row"] - 1 < 0) return true;
+      el = labMap[guard["row"] - 1][guard["col"]];
       break;
     case DIRS["E"]: // guard is facing East
-      el = labMap[guard["x"] + 1][guard["y"]];
+      if (guard["col"] + 1 > max) return true;
+      el = labMap[guard["row"]][guard["col"] + 1];
       break;
     case DIRS["S"]: // guard is facing South
-      el = labMap[guard["x"]][guard["y"] - 1];
+      if (guard["row"] + 1 > max) return true;
+      console.log(guard["row"] + 1);
+      console.log(guard["col"]);
+      console.log(labMap);
+      console.log(labMap[guard["row"] + 1][guard["col"]]);
+      el = labMap[guard["row"] + 1][guard["col"]];
       break;
     case DIRS["W"]:
-      el = labMap[guard["x"] - 1][guard["y"]];
+      if (guard["col"] - 1 < 0) return true;
+      el = labMap[guard["row"]][guard["col"] - 1];
       break;
     default:
   }
@@ -113,16 +121,16 @@ const shouldMoveForward = (guard, labMap) => {
 const moveGuardForward = (guard, labMap) => {
   switch (guard["dir"]) {
     case DIRS["N"]:
-      guard["y"]++;
+      guard["row"]--;
       break;
     case DIRS["E"]:
-      guard["x"]++;
+      guard["col"]++;
       break;
     case DIRS["S"]:
-      guard["y"]--;
+      guard["row"]++;
       break;
     case DIRS["W"]:
-      guard["x"]--;
+      guard["col"]--;
       break;
     default:
   }
@@ -157,9 +165,9 @@ const turnGuard = (guard, labMap) => {
 
 /**
  * Returns the "guard" Object. A guard has:
- * "x" - it's x-position
- * "y" - it's y-position (location in the x,y array)
- * KEY!!! The lower left corner is (0, 0). The upper right is (max-1, max-1)
+ * "row" - it's row-position in the labMap array. Uppermost row is 0.
+ * "col" - it's col-position (left-most col is 0)
+ * 
  * "dir" - a character that indicates which way it's pointing
  *
  * @param {*} labMap
@@ -172,8 +180,8 @@ const findGuard = (labMap) => {
     return rows.find((item, j) => {
       const found = item != "." && item != "#";
       if (found) {
-        result["x"] = j;
-        result["y"] = max - i;
+        result["row"] = i;
+        result["col"] = j;
         result["dir"] = item;
       }
       return found;
@@ -197,10 +205,10 @@ const main = async (fileName) => {
     console.log(`guard ${JSON.stringify(guard)}`);
     const validPosition = (guard) => {
       return (
-        guard["x"] < max &&
-        guard["x"] > min &&
-        guard["y"] < max &&
-        guard["y"] > min
+        guard["row"] < max &&
+        guard["row"] > min &&
+        guard["col"] < max &&
+        guard["col"] > min
       );
     };
     let isInLab = validPosition(guard);
@@ -216,13 +224,25 @@ const main = async (fileName) => {
       }
       isInLab = validPosition(guard);
       if (isInLab) {
-        stepsMap[guard["x"]][guard["y"]] = "X"; // mark guard's step with "X"
+        stepsMap[guard["row"]][guard["col"]] = "X"; // mark guard's step with "X"
+      } else {
+        console.log(`guard out of lab ${JSON.stringify(guard)}`);
       }
-      console.log(guard);
-      if (z++ > 10) throw new Error(``);
     }
 
-    printArray(stepsMap);
+    let numX = 0;
+    for (var k = 0; k < max; k++) {
+      for (var m = 0; m < max; m++) {
+        if (!stepsMap[k][m]) {
+          // process.stdout.write(labMap[k][m]);
+        } else {
+          numX++;
+          // process.stdout.write(stepsMap[k][m] + "");
+        }
+      }
+      // console.log();
+    }
+    console.log(`Found ${numX} positions.`);
     // In the example, the guard starts at position (6, 4)
     // console.log(labMap[6][4]); // prints up array for guard symbol
   } else if (part == "2") {
