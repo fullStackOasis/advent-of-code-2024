@@ -184,10 +184,7 @@ const findGuard = (labMap) => {
   return result;
 };
 
-const main = async (fileName) => {
-  const { labMap } = await readData(fileName);
-  const guard = findGuard(labMap);
-  if (part == "1") {
+const partOneMoveGuardUntilOutOfRoom = (labMap, guard) => {
     // The steps map has an "X" anywhere that the guard stepped.
     const len = labMap.length;
     const max = len;
@@ -220,7 +217,16 @@ const main = async (fileName) => {
         console.log(`guard out of lab ${JSON.stringify(guard)}`);
       }
     }
+    return stepsMap;
+};
 
+const main = async (fileName) => {
+  const { labMap } = await readData(fileName);
+  const guard = findGuard(labMap);
+  const len = labMap.length;
+  const max = len;
+  if (part == "1") {
+    const stepsMap = partOneMoveGuardUntilOutOfRoom(labMap, guard);
     let numX = 0;
     for (var k = 0; k < max; k++) {
       for (var m = 0; m < max; m++) {
