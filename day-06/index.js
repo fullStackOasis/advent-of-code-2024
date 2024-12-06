@@ -1,5 +1,9 @@
 /**
  * Advent of Code, day 6.
+ *
+ * Rules:
+ * If there is something directly in front of you, turn right 90 degrees.
+ * Otherwise, take a step forward.
  */
 const fs = require("fs").promises;
 
@@ -97,6 +101,32 @@ const moveGuardForward = (guard, labMap) => {
 };
 
 /**
+ * This function mutates the guard Object by changing its "dir" property.
+ * The guard is obstructed, so turn right 90 degrees.
+ *
+ * @param {*} guard
+ * @returns undefined
+ */
+const turnGuard = (guard, labMap) => {
+  switch (guard["dir"]) {
+    case DIRS["N"]:
+      guard["dir"] = DIRS["E"];
+      break;
+    case DIRS["E"]:
+      guard["dir"] = DIRS["S"];
+      break;
+    case DIRS["S"]:
+      guard["dir"] = DIRS["W"];
+      break;
+    case DIRS["W"]:
+      guard["dir"] = DIRS["N"];
+      break;
+    default:
+  }
+  return;
+};
+
+/**
  * Returns the "guard" Object. A guard has:
  * "x" - it's x-position
  * "y" - it's y-position (location in the x,y array)
@@ -146,6 +176,8 @@ const main = async (fileName) => {
     while (isInLab) {
       if (shouldMoveForward(guard, labMap)) {
         moveGuardForward(guard);
+      } else {
+        turnGuard(guard);
       }
       isInLab = validPosition(guard);
       if (isInLab) {
@@ -153,7 +185,7 @@ const main = async (fileName) => {
       }
     }
 
-    // printArray(labMap);
+    printArray(stepsMap);
     // In the example, the guard starts at position (6, 4)
     // console.log(labMap[6][4]); // prints up array for guard symbol
   } else if (part == "2") {
