@@ -169,7 +169,6 @@ const turnGuard = (guard, labMap) => {
  * @returns
  */
 const findGuard = (labMap) => {
-  const max = labMap.length - 1; // assume nxn
   const result = {};
   labMap.find((rows, i) => {
     return rows.find((item, j) => {
