@@ -22,6 +22,13 @@ if (part != "1" && part != "2") {
   process.exit(1); // Exit with error code
 }
 
+const FACING = {
+  "E" : ">",
+  "N" : "^",
+  "S" : "v",
+  "W" : "?"
+};
+
 /**
  * Return value is an Object with one element which is an array of arrays:
  * labMap.
@@ -43,7 +50,7 @@ const readData = async (fileName) => {
   }
 };
 
-printArray = (lines) => {
+const printArray = (lines) => {
   console.log(`Your array:`);
   for (let i = 0; i < lines.length; i++) {
     console.log(lines[i]);
@@ -51,8 +58,48 @@ printArray = (lines) => {
   console.log();
 };
 
+
+const shouldMoveForward = (guard, labMap) => {
+  return false;
+};
+
+const moveGuardForward = (guard, labMap) => {
+
+};
+
+/**
+ * Returns the "guard" Object. A guard has:
+ * "x" - it's x-position
+ * "y" - it's y-position (location in the x,y array)
+ * "dir" - a character that indicates which way it's pointing
+ *
+ * @param {*} labMap 
+ * @returns 
+ */
+const findGuard = (labMap) => {
+  const result = {};
+  labMap.find((rows, i) => {
+    return rows.find((item, j) => {
+      const found = item != "." && item != "#";
+      if (found) {
+        result["x"] = i;
+        result["y"] = j;
+        result["dir"] = item;      
+      }
+      return found;
+    });
+  });
+  console.log(result);
+  return result;
+};
+
 const main = async (fileName) => {
   const { labMap } = await readData(fileName);
+  const guard = findGuard(labMap);
+  console.log(guard);
+  if (shouldMoveForward(guard, labMap)) {
+    moveGuardForward(guard);
+  }
   // printArray(labMap);
   // In the example, the guard starts at position (6, 4)
   console.log(labMap[6][4]); // prints up array for guard symbol
