@@ -94,10 +94,6 @@ const shouldMoveForward = (guard, labMap) => {
       break;
     case DIRS["S"]: // guard is facing South
       if (guard["row"] + 1 > max) return true;
-      console.log(guard["row"] + 1);
-      console.log(guard["col"]);
-      console.log(labMap);
-      console.log(labMap[guard["row"] + 1][guard["col"]]);
       el = labMap[guard["row"] + 1][guard["col"]];
       break;
     case DIRS["W"]:
@@ -106,7 +102,6 @@ const shouldMoveForward = (guard, labMap) => {
       break;
     default:
   }
-  console.log(`el is ${el} guard is ${JSON.stringify(guard)}`);
   return el != "#";
 };
 
@@ -197,6 +192,7 @@ const main = async (fileName) => {
     // The steps map has an "X" anywhere that the guard stepped.
     const len = labMap.length;
     const max = len;
+    console.log(`max: ${max}`);
     const min = -1;
     const stepsMap = new Array(len);
     for (let i = 0; i < len; i++) {
@@ -212,14 +208,11 @@ const main = async (fileName) => {
       );
     };
     let isInLab = validPosition(guard);
-    console.log(isInLab);
-    let z = 0;
     while (isInLab) {
       if (shouldMoveForward(guard, labMap)) {
         moveGuardForward(guard);
       } else {
-        printArray(labMap);
-        console.log(`Guard will be turned ${guard}`);
+        // console.log(`Guard will be turned ${guard}`);
         turnGuard(guard);
       }
       isInLab = validPosition(guard);
