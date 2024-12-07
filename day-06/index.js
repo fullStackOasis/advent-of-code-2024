@@ -41,7 +41,7 @@ const DIRS = {
   E: ">",
   N: "^",
   S: "v",
-  W: "?",
+  W: "<",
 };
 
 /**
@@ -184,17 +184,29 @@ const findGuard = (labMap) => {
   return result;
 };
 
+const copy = (labMap) => {
+  const len = labMap.length;
+  const labMapCopy = new Array(len);
+  for (let i = 0; i < len; i++) {
+    if (!labMapCopy[i]) labMapCopy[i] = new Array(len);
+    for (let j = 0; j < len; j++) {
+      labMapCopy[i][j] = labMap[i][j];
+    }
+  }
+  return labMapCopy;
+};
+
 const partOneMoveGuardUntilOutOfRoom = (labMap, guard) => {
     // The steps map has an "X" anywhere that the guard stepped.
+    // Actually, it has an object, and the object has an "X" property.
+    // This was done for part 2.
     const len = labMap.length;
     const max = len;
-    console.log(`max: ${max}`);
     const min = -1;
     const stepsMap = new Array(len);
     for (let i = 0; i < len; i++) {
       stepsMap[i] = new Array(len);
     }
-    console.log(`guard ${JSON.stringify(guard)}`);
     const validPosition = (guard) => {
       return (
         guard["row"] < max &&
@@ -212,20 +224,62 @@ const partOneMoveGuardUntilOutOfRoom = (labMap, guard) => {
       }
       isInLab = validPosition(guard);
       if (isInLab) {
-        stepsMap[guard["row"]][guard["col"]] = "X"; // mark guard's step with "X"
+        if (stepsMap[guard["row"]][guard["col"]]) {
+          // We were here before.
+          // Do we currently have the same direction as before?
+          const currentDirection = guard["dir"];
+          const previousDirections = stepsMap[guard["row"]][guard["col"]]["dir"];
+          if (previousDirections.includes(currentDirection)) {
+            // We have been here before and we are pointed in the same direction.
+            // This must mean we are in an infinite loop.
+            throw new Error(`Guard is stuck in a loop`);
+          }
+          stepsMap[guard["row"]][guard["col"]]["dir"].push(guard["dir"]);
+        } else {
+          stepsMap[guard["row"]][guard["col"]] = {
+            X: "X",
+            row: guard["row"],
+            col: guard["col"],
+            dir: [guard["dir"]]
+          }; // mark guard's step with "X"
+        }
       } else {
-        console.log(`guard out of lab ${JSON.stringify(guard)}`);
+        // console.log(`guard out of lab ${JSON.stringify(guard)}`);
       }
     }
     return stepsMap;
 };
 
+const printNxNArray = (arr) => {
+  const max = arr.length;
+  for (var k = 0; k < max; k++) {
+    for (var m = 0; m < max; m++) {
+      if (arr[k][m]) {
+        const output = typeof arr[k][m] == 'string' ?
+          arr[k][m] : JSON.stringify(arr[k][m]);
+        process.stdout.write(output);
+      } else {
+        process.stdout.write("?");
+      }
+    }
+    console.log('');
+  }
+};
+
 const main = async (fileName) => {
   const { labMap } = await readData(fileName);
   const guard = findGuard(labMap);
+  // originalLabMap shows the guard's original location
+  const originalLabMap = copy(labMap);
+  // Overwrite the guard.
+  labMap[guard["row"]][guard["col"]] = ".";
+  const rowInit = guard["row"];
+  const colInit = guard["col"];
+  // console.log(`initial position: row, col: ${rowInit} ${colInit}`);
   const len = labMap.length;
   const max = len;
   if (part == "1") {
+    // get corresponding map with "X" marking spot where guard stepped.
     const stepsMap = partOneMoveGuardUntilOutOfRoom(labMap, guard);
     let numX = 0;
     for (var k = 0; k < max; k++) {
@@ -239,9 +293,31 @@ const main = async (fileName) => {
       }
     }
     console.log(`Found ${numX} positions.`);
-    // In the example, the guard starts at position (6, 4)
-    // console.log(labMap[6][4]); // prints up array for guard symbol
   } else if (part == "2") {
+    let numX = 0;
+    for (var k = 0; k < max; k++) {
+      for (var m = 0; m < max; m++) {
+        // Lazy. Candidate for refactor TODO FIXME.
+        // Get the guard again, because we didn't save it, and the original guard changed.
+        const guard = findGuard(originalLabMap);
+        const newLabMap = copy(originalLabMap);
+        // Overwrite the guard's position as before.
+        newLabMap[guard["row"]][guard["col"]] = ".";
+        if (k == rowInit && m == colInit) {
+          // Note when guard is found: you cannot put an obstacle there, skip.
+          console.log(`Cannot place obstacle on guard: ` + originalLabMap[k][m]);
+          continue;
+        }
+        // Place an obstacle at this position.
+        newLabMap[k][m] = "#";
+        try {
+          partOneMoveGuardUntilOutOfRoom(newLabMap, guard);
+        } catch (e) {
+          numX++;
+        }
+      }
+    }
+    console.log(`Found ${numX} positions.`);
   }
 };
 
