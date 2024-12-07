@@ -11,12 +11,34 @@ const { validateInput } = require("../lib");
 
 const {fileName, part} = validateInput();
 
-const main = async (fileName) => {
-  throw new Error(`incomplete`);
-  if (part == "1") {
-  } else if (part == "2") {
-    console.log(`Found ${numX} positions.`);
+/**
+ * Reads data from fileName, and returns an array of arrays, such as
+ * [[ '190', '10', '19' ],...]. The first element will be the "result" of the
+ * remaining elements with operators applied. See instructions.
+ *
+ * @param {*} fileName
+ * @returns array
+ */
+const readData = async (fileName) => {
+  try {
+    const lines = [];
+    const data = await fs.readFile(fileName.trim(), "utf8");
+    data.split("\n").forEach((line, i) => {
+      const row = line.trim();
+      lines.push(row.match(/\d+/g));
+    });
+    return lines;
+  } catch (err) {
+    console.error(`Error reading file: ${err.message}`);
   }
+};
+
+const main = async (fileName) => {
+  if (part == "1") {
+    const linesOfData = await readData(fileName);
+  } else if (part == "2") {
+  }
+  throw new Error(`incomplete`);
 };
 
 main(fileName);
