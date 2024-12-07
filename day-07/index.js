@@ -47,7 +47,7 @@ const applyOperatorsInAllPossibleOrders = ({ result, operands }) => {
   if (operands.length == 2) {
     const result1 = operands[0] + operands[1] == result;
     const result2 = operands[0] * operands[1] == result;
-    return result1 && result2 ? 2 : result1 || result2 ? 1 : 0;
+    return result1 && result2 ? result*2 : result1 || result2 ? result : 0;
   }
   throw new Error(`incomplete`);
 };
