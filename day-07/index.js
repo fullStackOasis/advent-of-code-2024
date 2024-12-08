@@ -42,35 +42,57 @@ const readData = async (fileName) => {
  * @returns
  */
 const applyOperatorsInAllPossibleOrders = ({ result, operands }) => {
-  console.log(`result: ${result} operands: ${operands}`);
-  // Simple algorithm but not extensible, realistically. Just get something working.
-  if (operands.length == 2) {
-    const result1 = operands[0] + operands[1] == result;
-    const result2 = operands[0] * operands[1] == result;
-    return result1 && result2 ? result*2 : result1 || result2 ? result : 0;
-  }
-  throw new Error(`incomplete`);
+  const max = operands.length - 1;
+  const permutations = generatePermutations(max);
+  let total = 0;
+  const plen = permutations.length;
+  const olen = operands.length;
+  for (let p = 0; p < plen; p++) {
+    const permutation = permutations[p];
+    let sum = Number(operands[0]);
+    for (let i = 1; i < olen; i++) {
+      if (permutation[i-1] == "0") {
+        sum = sum + Number(operands[i]);
+      } else {
+        sum = sum * Number(operands[i]);
+      }
+    }
+    if (sum == result) {
+      // console.log(`Match when result is ${result} ${permutation}`);
+      total += sum;
+      // No need to search for more; just return
+      return total;
+    }
+  };
+  return 0;
 };
+
+const generatePermutations = (n) => {
+  return Array.from({ length: 2 ** n }, (_, i) => i.toString(2).padStart(n, '0'));
+}
 
 const loopOverData = (linesOfData) => {
   const len = linesOfData.length;
+  let total = 0;
   for (let i = 0; i < len; i++) {
     const result = linesOfData[i].shift();
     const n = applyOperatorsInAllPossibleOrders({
       result,
       operands: linesOfData[i],
     });
-    console.log(`loopOverData got n = ${n}`);
+    total += n;
   }
+  return total;
 };
 
 const main = async (fileName) => {
   if (part == "1") {
     const linesOfData = await readData(fileName);
-    loopOverData(linesOfData);
+    const totalFound = loopOverData(linesOfData);
+    console.log(`Total of all matches: ${totalFound}`);
   } else if (part == "2") {
+    throw new Error(`incomplete`);
   }
-  throw new Error(`incomplete`);
 };
 
 main(fileName);
