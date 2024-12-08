@@ -165,8 +165,10 @@ const findNextCharacterPosition = (part2, storage, antenna, lines, row, col) => 
     const antinodes = getAntinodes(part2, antenna, lines, {
       freq: antenna.freq, row: nextRow, col: nextCol
     });
-    antinodes.push({row: antenna.row, col: antenna.col});
-    antinodes.push({row: nextRow, col: nextCol});
+    if (part2) {
+      antinodes.push({row: antenna.row, col: antenna.col});
+      antinodes.push({row: nextRow, col: nextCol});
+    }
     if (antinodes.length) {
       antinodes.forEach(antinode => storage.push(antinode));
     }
