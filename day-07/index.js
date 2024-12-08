@@ -41,9 +41,9 @@ const readData = async (fileName) => {
  * integers)
  * @returns
  */
-const applyOperatorsInAllPossibleOrders = ({ result, operands }) => {
+const applyOperatorsInAllPossibleOrders = ({ result, operands, fun }) => {
   const max = operands.length - 1;
-  const permutations = generatePermutations(max);
+  const permutations = fun(max);
   let total = 0;
   const plen = permutations.length;
   const olen = operands.length;
@@ -53,8 +53,10 @@ const applyOperatorsInAllPossibleOrders = ({ result, operands }) => {
     for (let i = 1; i < olen; i++) {
       if (permutation[i-1] == "0") {
         sum = sum + Number(operands[i]);
-      } else {
+      } else if (permutation[i-1] == "1") {
         sum = sum * Number(operands[i]);
+      } else if (permutation[i-1] == "2") {
+        sum = Number(sum + operands[i]);
       }
     }
     if (sum == result) {
@@ -67,16 +69,23 @@ const applyOperatorsInAllPossibleOrders = ({ result, operands }) => {
   return 0;
 };
 
-const generatePermutations = (n) => {
+// Candidate for refactor
+const generatePermutationsOfTwo = (n) => {
   return Array.from({ length: 2 ** n }, (_, i) => i.toString(2).padStart(n, '0'));
-}
+};
 
-const loopOverData = (linesOfData) => {
+// Candidate for refactor
+const generatePermutationsOfThree = (n) => {
+  return Array.from({ length: 3 ** n }, (_, i) => i.toString(3).padStart(n, '0'));
+};
+
+const loopOverData = (linesOfData, fun) => {
   const len = linesOfData.length;
   let total = 0;
   for (let i = 0; i < len; i++) {
     const result = linesOfData[i].shift();
     const n = applyOperatorsInAllPossibleOrders({
+      fun,
       result,
       operands: linesOfData[i],
     });
@@ -86,12 +95,13 @@ const loopOverData = (linesOfData) => {
 };
 
 const main = async (fileName) => {
+  const linesOfData = await readData(fileName);
   if (part == "1") {
-    const linesOfData = await readData(fileName);
-    const totalFound = loopOverData(linesOfData);
+    const totalFound = loopOverData(linesOfData, generatePermutationsOfTwo);
     console.log(`Total of all matches: ${totalFound}`);
   } else if (part == "2") {
-    throw new Error(`incomplete`);
+    const totalFound = loopOverData(linesOfData, generatePermutationsOfThree);
+    console.log(`Total of all matches: ${totalFound}`);
   }
 };
 
