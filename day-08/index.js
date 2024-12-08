@@ -165,6 +165,8 @@ const findNextCharacterPosition = (part2, storage, antenna, lines, row, col) => 
     const antinodes = getAntinodes(part2, antenna, lines, {
       freq: antenna.freq, row: nextRow, col: nextCol
     });
+    antinodes.push({row: antenna.row, col: antenna.col});
+    antinodes.push({row: nextRow, col: nextCol});
     if (antinodes.length) {
       antinodes.forEach(antinode => storage.push(antinode));
     }
@@ -213,15 +215,21 @@ const findUniqueAntinodes = (lines, part2) => {
 
   const uniques = {};
   storage.forEach((el, i) => {
-    const key = JSON.stringify(el); // handy
+    // Note: when you stringify an object you cannot guarantee order in which
+    // properties are printed so stringify is non-determinate for a key.
+    // Meaning, you might get one key {"col":2,"row":3} and another key
+    // {"row":3,"col":2} and they represent the same point.
+    // So, instead, stringify an array, where order is guaranteed.
+    const key = JSON.stringify([el.row, el.col]);
     uniques[key] = el;
   });
   console.log(`Found ${storage.length} antinodes.`);
   console.log(`Found ${Object.keys(uniques).length} unique antinodes.`);
   // antennae.forEach((el, i) => console.log(JSON.stringify(el)));
-  printArray(n, storage, antennae);
+  // printArray(n, storage, antennae);
 };
 
+// Solution is kind of ugly but I don't want to spend more time making it nicer.
 const main = async (fileName) => {
   // Looks like we can assume an nxn array.
   const { lines } = await readData(fileName);
@@ -229,7 +237,6 @@ const main = async (fileName) => {
     findUniqueAntinodes(lines, false);
   } else if (part == "2") {
     findUniqueAntinodes(lines, true);
-    throw new Error(`unfinished`);
   }
 };
 
