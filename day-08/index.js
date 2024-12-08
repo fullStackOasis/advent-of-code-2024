@@ -40,7 +40,7 @@ const isValidAntinode = (n, antinode) => {
 };
 
 // Return an array of objects with col and row
-const getAntinodes = (antenna1, lines, antenna2) => {
+const getAntinodes = (part2, antenna1, lines, antenna2) => {
   // Kind of a horrible algorithm, but quick.
   const n = lines.length;
   // row and col are always after antenna's row and col.
@@ -52,40 +52,80 @@ const getAntinodes = (antenna1, lines, antenna2) => {
     // ........0... antenna1
     // .....0...... antenna2
     // first antinode is to upper right
-    const antinode1 = {
+    let antinode1 = {
       col: antenna1.col + diffCol,
       row: antenna1.row - diffRow,
     };
-    if (isValidAntinode(n, antinode1)) {
+    let inc = 1;
+    while (isValidAntinode(n, antinode1)) {
       antinodes.push(antinode1);
+      if (part2) {
+        inc++;
+        antinode1 = {
+          col: antenna1.col + inc*diffCol,
+          row: antenna1.row - inc*diffRow,    
+        };
+      } else {
+        antinode1 = {};
+      }
     }
     // second antinode is to lower left
-    const antinode2 = {
+    let antinode2 = {
       col: antenna2.col - diffCol,
       row: antenna2.row + diffRow,
     };
-    if (isValidAntinode(n, antinode2)) {
+    inc = 1;
+    while (isValidAntinode(n, antinode2)) {
       antinodes.push(antinode2);
+      if (part2) {
+        inc++;
+        antinode2 = {
+          col: antenna2.col - inc*diffCol,
+          row: antenna2.row + inc*diffRow,    
+        };
+      } else {
+        antinode2 = {};
+      }
     }
   } else {
     // antenna2 is to the right of antenna1
     // .....0...... antenna1
     // .......0.... antenna2
     // first antinode is to upper left
-    const antinode1 = {
+    let antinode1 = {
       col: antenna1.col - diffCol,
       row: antenna1.row - diffRow,
     };
-    if (isValidAntinode(n, antinode1)) {
+    let inc = 1;
+    while (isValidAntinode(n, antinode1)) {
       antinodes.push(antinode1);
+      if (part2) {
+        inc++;
+        antinode1 = {
+          col: antenna1.col - inc*diffCol,
+          row: antenna1.row - inc*diffRow,    
+        };
+      } else {
+        antinode1 = {};
+      }
     }
     // second antinode is to lower right
-    const antinode2 = {
+    inc = 1;
+    let antinode2 = {
       col: antenna2.col + diffCol,
       row: antenna2.row + diffRow,
     };
-    if (isValidAntinode(n, antinode2)) {
+    while (isValidAntinode(n, antinode2)) {
       antinodes.push(antinode2);
+      if (part2) {
+        inc++;
+        antinode2 = {
+          col: antenna2.col + inc*diffCol,
+          row: antenna2.row + inc*diffRow,    
+        };
+      } else {
+        antinode2 = {};
+      }
     }
   }
   /* debugging
@@ -101,7 +141,8 @@ const getAntinodes = (antenna1, lines, antenna2) => {
 /**
  * Starting at x, y, find the next non "." character in lines.
  * Prints the character and its position.
- * 
+ *
+ * @param {*} part2 is true of false if working on part 1
  * @param {*} storage stores antinodes when found 
  * @param {*} antenna is the original antenna, we search for another antenna
  * after it (right and down) in the map, with the same frequency
@@ -109,7 +150,7 @@ const getAntinodes = (antenna1, lines, antenna2) => {
  * @param {*} row where we start searching
  * @param {*} col where we start searching
  */
-const findNextCharacterPosition = (storage, antenna, lines, row, col) => {
+const findNextCharacterPosition = (part2, storage, antenna, lines, row, col) => {
   // search beginning at (row, col), excluding (row, col)
   const n = lines.length;
   // Compute the next position, then check to see if there's same antenna there.
@@ -121,14 +162,14 @@ const findNextCharacterPosition = (storage, antenna, lines, row, col) => {
 
   if (antenna.freq == lines[nextRow][nextCol]) {
     // Found a pair. You can only have antinodes around a pair.
-    const antinodes = getAntinodes(antenna, lines, {
+    const antinodes = getAntinodes(part2, antenna, lines, {
       freq: antenna.freq, row: nextRow, col: nextCol
     });
     if (antinodes.length) {
       antinodes.forEach(antinode => storage.push(antinode));
     }
   }
-  findNextCharacterPosition(storage, antenna, lines, nextRow, nextCol);
+  findNextCharacterPosition(part2, storage, antenna, lines, nextRow, nextCol);
 };
 
 const isAntenna = (element) => {
@@ -153,7 +194,7 @@ const printArray = (n, antinodes, antennae) => {
   }
 };
 
-const findUniqueAntinodes = (lines) => {
+const findUniqueAntinodes = (lines, part2) => {
   const n = lines.length;
   const storage = [];
   const antennae = [];
@@ -164,7 +205,7 @@ const findUniqueAntinodes = (lines) => {
         const antenna = {freq: foundAntenna, row: row, col: col};
         antennae.push(antenna);
         // console.log(`Looping, found antenna ${JSON.stringify(antenna)} at row=${row} col=${col}`);
-        findNextCharacterPosition(storage,
+        findNextCharacterPosition(part2, storage,
           antenna, lines, row, col);
       }
     }
@@ -178,15 +219,16 @@ const findUniqueAntinodes = (lines) => {
   console.log(`Found ${storage.length} antinodes.`);
   console.log(`Found ${Object.keys(uniques).length} unique antinodes.`);
   // antennae.forEach((el, i) => console.log(JSON.stringify(el)));
-  // printArray(n, storage, antennae);
+  printArray(n, storage, antennae);
 };
 
 const main = async (fileName) => {
   // Looks like we can assume an nxn array.
   const { lines } = await readData(fileName);
   if (part == "1") {
-    findUniqueAntinodes(lines);
+    findUniqueAntinodes(lines, false);
   } else if (part == "2") {
+    findUniqueAntinodes(lines, true);
     throw new Error(`unfinished`);
   }
 };
