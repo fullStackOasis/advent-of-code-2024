@@ -72,6 +72,7 @@ const convertLineToRaw = (line) => {
   const DEBUG = false;
   if (DEBUG) console.log(line);
   const len = line.length;
+  console.log(`n is ${len}`);
   let idNumber = 0;
   let result = "";
   for (let i = 0; i < len; i++) {
@@ -90,13 +91,33 @@ const convertLineToRaw = (line) => {
   return result;
 };
 
+/**
+ * Compute "checksum" and return it.
+ * @param {*} compressed
+ */
+const getChecksumFromCompressed = (compressed) => {
+  const compressedArray = compressed.split("");
+  const len = compressedArray.length;
+  let result = 0;
+  for (let i = 0; i < len; i++) {
+    if (compressedArray[i] == ".") break;
+    const n = i * new Number(compressedArray[i]);
+    result += n;
+  }
+  return result;
+};
+
 const main = async (fileName) => {
   // Single line expected.
   const { line } = await readData(fileName);
   if (part == "1") {
     const raw = convertLineToRaw(line);
+    console.log(`raw: ${raw}`);
     const compressed = convertRawToCompressed(raw);
     console.log(`compressed: ${compressed}`);
+    const checksum = getChecksumFromCompressed(compressed);
+    // Getting the answer "too low" for result 90033860628
+    console.log(`checksum: ${checksum}`);
   } else if (part == "2") {
     throw new Error(`unfinished`);
   }
