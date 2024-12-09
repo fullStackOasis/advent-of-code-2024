@@ -23,11 +23,17 @@ const readData = async (fileName) => {
   }
 };
 
+const convertLineToRaw = (line) => {
+  console.log(line);
+  return line;
+};
+
 const main = async (fileName) => {
   // Single line expected.
   const { line } = await readData(fileName);
   console.log(line);
   if (part == "1") {
+    const raw = convertLineToRaw(line);
   } else if (part == "2") {
   }
   throw new Error(`unfinished`);
