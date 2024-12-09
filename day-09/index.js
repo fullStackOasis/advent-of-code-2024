@@ -1,6 +1,12 @@
 /**
  * Advent of Code, day 9.
  *
+ * "The disk map uses a dense format to represent the layout of files and free
+ * space on the disk. The digits alternate between indicating the length of a
+ * file and the length of free space."
+ *
+ * The examples are not clear, but it sounds like digits can only be betwen 0
+ * and 9. However, indices go from 0 to any large integer.
  */
 const fs = require("fs").promises;
 
@@ -40,17 +46,23 @@ const swapFirstDotWith = (raw, ch, chPos) => {
  * Turns the raw string like 2333133121414131402 to the compressed string, like
  * 0099811188827773336446555566..............
  * @param {*} raw
- * @returns
+ * @returns the compressed array
  */
 const convertRawToCompressed = (raw) => {
   const DEBUG = false;
   // It is easy programmatically to manipulate this string if we split it into
   // an array of characters. You cannot mutate the string.
-  const rawArray = raw.split("");
+  const rawArray = raw.split("][");
+  rawArray[0] = rawArray[0].replace("[", "");
+  rawArray[rawArray.length - 1] = rawArray[rawArray.length - 1].replace(
+    "]",
+    ""
+  );
   // Get count of all elements that are "."
   let nDots = rawArray.filter((el) => el == ".").length;
   const len = rawArray.length;
   for (let i = len - 1; i > -1; i--) {
+    // This "ch" represents either freespace (".") or an index ("0", "21"  etc)
     const ch = rawArray[i];
     swapFirstDotWith(rawArray, ch, i);
     nDots--;
@@ -60,7 +72,7 @@ const convertRawToCompressed = (raw) => {
     if (DEBUG) process.stdout.write(ch);
   }
   if (DEBUG) console.log("");
-  return rawArray.join("");
+  return rawArray;
 };
 
 /**
@@ -72,14 +84,13 @@ const convertLineToRaw = (line) => {
   const DEBUG = false;
   if (DEBUG) console.log(line);
   const len = line.length;
-  console.log(`n is ${len}`);
   let idNumber = 0;
   let result = "";
   for (let i = 0; i < len; i++) {
     const num = line[i];
     const isFreeSpace = i % 2 == 1;
     for (let j = 0; j < num; j++) {
-      const ch = isFreeSpace ? "." : idNumber + "";
+      const ch = isFreeSpace ? "[.]" : `[${idNumber}]`;
       result += ch;
       if (DEBUG) process.stdout.write(ch);
     }
@@ -96,7 +107,7 @@ const convertLineToRaw = (line) => {
  * @param {*} compressed
  */
 const getChecksumFromCompressed = (compressed) => {
-  const compressedArray = compressed.split("");
+  const compressedArray = compressed;
   const len = compressedArray.length;
   let result = 0;
   for (let i = 0; i < len; i++) {
@@ -109,14 +120,16 @@ const getChecksumFromCompressed = (compressed) => {
 
 const main = async (fileName) => {
   // Single line expected.
+  const DEBUG = false;
   const { line } = await readData(fileName);
   if (part == "1") {
+    if (DEBUG) console.log(`line: ${line}`);
     const raw = convertLineToRaw(line);
-    console.log(`raw: ${raw}`);
+    if (DEBUG) console.log(`raw: ${raw}`);
+
     const compressed = convertRawToCompressed(raw);
-    console.log(`compressed: ${compressed}`);
+    if (DEBUG) console.log(`compressed: ${compressed}`);
     const checksum = getChecksumFromCompressed(compressed);
-    // Getting the answer "too low" for result 90033860628
     console.log(`checksum: ${checksum}`);
   } else if (part == "2") {
     throw new Error(`unfinished`);
