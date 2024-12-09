@@ -25,7 +25,24 @@ const readData = async (fileName) => {
 
 const convertLineToRaw = (line) => {
   console.log(line);
-  return line;
+  const len = line.length;
+  let idNumber = 0;
+  let result = "";
+  for (let i = 0; i < len; i++) {
+    const num = line[i];
+    const isFreeSpace = i % 2 == 1;
+    //console.log(`num, isFreeSpace ${num} ${isFreeSpace}`);
+    for (let j = 0; j < num; j++) {
+      const ch = isFreeSpace ? "." : idNumber + "";
+      result += ch;
+      process.stdout.write(ch);
+    }
+    if (isFreeSpace) {
+      idNumber++;
+    }
+  }
+  console.log("");
+  return result;
 };
 
 const main = async (fileName) => {
@@ -34,6 +51,7 @@ const main = async (fileName) => {
   console.log(line);
   if (part == "1") {
     const raw = convertLineToRaw(line);
+    console.log(raw);
   } else if (part == "2") {
   }
   throw new Error(`unfinished`);
