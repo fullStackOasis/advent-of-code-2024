@@ -4,16 +4,21 @@
  * If the stone is engraved with the number 0, it is replaced by a stone engraved with the number 1.
  * If the stone is engraved with a number that has an even number of digits, it is replaced by two stones. The left half of the digits are engraved on the new left stone, and the right half of the digits are engraved on the new right stone. (The new numbers don't keep extra leading zeroes: 1000 would become stones 10 and 0.)
  * If none of the other rules apply, the stone is replaced by a new stone; the old stone's number multiplied by 2024 is engraved on the new stone."
- * 
+ *
  * Note: appears there is always one whitespace between two stones.
+ *
+ * Comment: at 41 nblinks, there was a core dump with:
+ * "Fatal JavaScript invalid size error 188720663"
+ * Maximum size of an array in JavaScript is 4294967295.
+ * Search results say you may run into memory problems earlier, however.
  */
 const fs = require("fs").promises;
 
 const { validateInput } = require("../lib");
 
-const { fileName, part } = validateInput();
+const { fileName, part, extra } = validateInput();
 
-const NBLINKS = 1;
+const NBLINKS = extra ? extra : 6;
 
 /**
  * Return value is an Object with a single "line" element.
@@ -38,13 +43,98 @@ const log = (msg, DEBUG) => {
   if (DEBUG) console.log(msg);
 };
 
+/**
+ * See rules at top of code.
+ * Given a stone, this function tells us what replaces it.
+ *
+ * @param {*} stone
+ */
+const getRuleResult = (stone) => {
+  if (stone == "0") {
+    return "1";
+  } else if (stone.length % 2 == 0) {
+    // split in half:
+    const firstHalf = stone.substring(0, stone.length / 2);
+    const secondHalf = stone.substring(stone.length / 2, stone.length);
+    return Number(firstHalf) + " " + Number(secondHalf);
+  } else {
+    // multiply by 2024
+    return stone * 2024 + "";
+  }
+};
+
+const applyPart1Rules = (stones) => {
+  const len = stones.length;
+  const result = new Array();
+  for (let i = 0; i < len; i++) {
+    const stone = stones[i];
+    const ruleResult = getRuleResult(stone).split(" ");
+    for (let j = 0; j < ruleResult.length; j++) {
+      result.push(ruleResult[j]);
+    }
+  }
+  return result;
+};
+
+const applyPart2Rules = (stones) => {
+  const len = stones.length;
+  const result = new Array();
+  for (let i = 0; i < len; i++) {
+    const stone = stones[i];
+    const ruleResult = getRuleResult(stone).split(" ");
+    for (let j = 0; j < ruleResult.length; j++) {
+      result.push(ruleResult[j]);
+    }
+  }
+  return result;
+};
+
+const printStones = (stones) => {
+  const len = stones.length;
+  let sep = "";
+  for (let i = 0; i < len; i++) {
+    process.stdout.write(sep + stones[i]);
+    if (i == 0) sep = " ";
+  }
+  process.stdout.write("\n");
+};
+
+// part 1: node index.js input.txt 1 25
+// 199946
+// part 2: node index.js input.txt 1 25
 const main = async (fileName) => {
   // rows of lines expected with numbers 0..9 filling them.
-  const { lines } = await readData(fileName);
-  console.log(lines);
+  const { lines: stones } = await readData(fileName);
+
   if (part == "1") {
-    throw new Error(`not finished`);
+    let currentStones = stones;
+    let i = 0;
+    try {
+      for (i = 0; i < NBLINKS; i++) {
+        currentStones = applyPart1Rules(currentStones);
+        printStones(currentStones);
+      }
+    } catch (e) {
+      console.log(`stopped at ${i}`);
+    }
+    // printStones(currentStones);
+    console.log(
+      `There are ${currentStones.length} stones in front of you after ${NBLINKS} blinks`
+    );
   } else if (part == "2") {
+    let currentStones = stones.join(" ");
+    let i = 0;
+    try {
+      for (i = 0; i < NBLINKS; i++) {
+        currentStones = applyPart2Rules(currentStones);
+        printStones(currentStones);
+      }
+      console.log(
+        `There are ${currentStones.length} stones in front of you after ${NBLINKS} blinks`
+      );
+    } catch (e) {
+      console.log(`stopped at ${i}`);
+    }
     throw new Error(`not finished`);
   }
 };
