@@ -80,19 +80,25 @@ const applyPart1Rules = (stones) => {
 // Input is a string
 const applyPart2Rules = (stones) => {
   const len = stones.length;
-  const result = new Array();
+  let result = "";
   let word = "";
-  const processWord = (word, ) => {
+  const processWord = (word) => {
     const ruleResult = getRuleResult(word).split(" ");
+    // console.log(`word |${word}| rule result |${JSON.stringify(ruleResult)}|`)
+    let tmp = "";
+    let sep = "";
     for (let j = 0; j < ruleResult.length; j++) {
-      result.push(ruleResult[j]); // TODO
+      tmp += sep + ruleResult[j];
+      if (j == 0) sep = " ";
     }
-    return ruleResult;
-  }
+    return tmp;
+  };
   for (let i = 0; i < len; i++) {
     const ch = stones[i];
     if (ch == " ") {
-      const ruleResult = processWord(word); // TODO
+      const tmp = processWord(word);
+      result = (result + " " + tmp).trim();
+      // console.log(`word=|${word}|, tmp=|${tmp}|, result=|${result}|`);
       word = "";
     } else {
       word += ch;
@@ -100,8 +106,8 @@ const applyPart2Rules = (stones) => {
   }
   // There will be one remaining word that did not get processed.
   // Process it now.
-  processWord(word);
-  return result;
+  result += " " + processWord(word);
+  return result.trim();
 };
 
 const printStones = (stones) => {
@@ -112,6 +118,72 @@ const printStones = (stones) => {
     if (i == 0) sep = " ";
   }
   process.stdout.write("\n");
+};
+
+// stones is a string with whitespace.
+const getPart2NumberOfStones = (stones) => {
+  const len = stones.length;
+  let counter = 1;
+  for (let i = 0; i < len; i++) {
+    if (stones[i] == " ") counter++;
+  }
+  return counter;
+};
+
+const runPart2UsingPart1 = () => {
+  let currentStones = stones;
+  let i = 0;
+  for (i = 0; i < NBLINKS; i++) {
+    // printStones(currentStones);
+    currentStones = applyPart1Rules(currentStones);
+  }
+  return currentStones.length;
+};
+
+// This performs even worse than the original!
+// Not a win.
+const runPart2UsingPart2 = (stones) => {
+  let currentStones = stones.join(" ");
+  let i = 0;
+  for (i = 0; i < NBLINKS; i++) {
+    currentStones = applyPart2Rules(currentStones);
+  }
+  const len = getPart2NumberOfStones(currentStones);
+  return len;
+};
+
+// stones is an array
+const runUsingRecursion = (stones) => {
+  console.log(stones);
+  let value = "";
+  for (i = 0; i < stones.length; i++) {
+    const counter = 0;
+    let stone = stones[i];
+    value += " " + workOnStone(counter, stone);
+    console.log(`counter: ${JSON.stringify(counter)}`);
+  }
+  console.log(`value: ${JSON.stringify(value)}`);
+};
+// 872*2024 = 1764928
+
+const workOnStone = (counter, stone) => {
+  if (counter >= NBLINKS) {
+    console.log(`Returning ${stone} counter=${counter}`);
+    return stone;
+  }
+  let result = "";
+  const ruleResult = getRuleResult(stone).split(" ");
+  console.log(`stone ${stone} ruleResult ${ruleResult} now counter=${counter}`);
+  if (ruleResult.length > 1) {
+    console.log(`just before 0, counter=${counter}`);
+    result += " " + workOnStone(counter + 1, ruleResult[0]);
+    console.log(`just before 1, counter=${counter}`);
+    result += " " + workOnStone(counter + 1, ruleResult[1]);
+  } else {
+    result += " " + workOnStone(counter + 1, ruleResult[0]);
+  }
+  console.log(`Going to return result ${result}`);
+  return result;
 };
 
 // part 1: node index.js input.txt 1 25
@@ -125,25 +197,19 @@ const main = async (fileName) => {
     let currentStones = stones;
     let i = 0;
     for (i = 0; i < NBLINKS; i++) {
+      // printStones(currentStones);
       currentStones = applyPart1Rules(currentStones);
     }
-    // printStones(currentStones);
+    printStones(currentStones);
     console.log(
       `There are ${currentStones.length} stones in front of you after ${NBLINKS} blinks`
     );
   } else if (part == "2") {
-    let currentStones = stones.join(" ");
-    // console.log(`init ${currentStones}`);
-    let i = 0;
-    for (i = 0; i < NBLINKS; i++) {
-      currentStones = applyPart2Rules(currentStones);
-      currentStones = currentStones.join(" ");
-    }
-    currentStones = currentStones.split(" ");
-    // printStones(currentStones);
+    const len = runUsingRecursion(stones);
     console.log(
-      `There are ${currentStones.length} stones in front of you after ${NBLINKS} blinks`
+      `There are ${len} stones in front of you after ${NBLINKS} blinks`
     );
+
     throw new Error(`not finished`);
   }
 };
