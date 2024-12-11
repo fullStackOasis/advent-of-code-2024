@@ -63,6 +63,7 @@ const getRuleResult = (stone) => {
   }
 };
 
+// Input is an array
 const applyPart1Rules = (stones) => {
   const len = stones.length;
   const result = new Array();
@@ -76,16 +77,30 @@ const applyPart1Rules = (stones) => {
   return result;
 };
 
+// Input is a string
 const applyPart2Rules = (stones) => {
   const len = stones.length;
   const result = new Array();
-  for (let i = 0; i < len; i++) {
-    const stone = stones[i];
-    const ruleResult = getRuleResult(stone).split(" ");
+  let word = "";
+  const processWord = (word, ) => {
+    const ruleResult = getRuleResult(word).split(" ");
     for (let j = 0; j < ruleResult.length; j++) {
-      result.push(ruleResult[j]);
+      result.push(ruleResult[j]); // TODO
+    }
+    return ruleResult;
+  }
+  for (let i = 0; i < len; i++) {
+    const ch = stones[i];
+    if (ch == " ") {
+      const ruleResult = processWord(word); // TODO
+      word = "";
+    } else {
+      word += ch;
     }
   }
+  // There will be one remaining word that did not get processed.
+  // Process it now.
+  processWord(word);
   return result;
 };
 
@@ -109,13 +124,8 @@ const main = async (fileName) => {
   if (part == "1") {
     let currentStones = stones;
     let i = 0;
-    try {
-      for (i = 0; i < NBLINKS; i++) {
-        currentStones = applyPart1Rules(currentStones);
-        printStones(currentStones);
-      }
-    } catch (e) {
-      console.log(`stopped at ${i}`);
+    for (i = 0; i < NBLINKS; i++) {
+      currentStones = applyPart1Rules(currentStones);
     }
     // printStones(currentStones);
     console.log(
@@ -123,18 +133,17 @@ const main = async (fileName) => {
     );
   } else if (part == "2") {
     let currentStones = stones.join(" ");
+    // console.log(`init ${currentStones}`);
     let i = 0;
-    try {
-      for (i = 0; i < NBLINKS; i++) {
-        currentStones = applyPart2Rules(currentStones);
-        printStones(currentStones);
-      }
-      console.log(
-        `There are ${currentStones.length} stones in front of you after ${NBLINKS} blinks`
-      );
-    } catch (e) {
-      console.log(`stopped at ${i}`);
+    for (i = 0; i < NBLINKS; i++) {
+      currentStones = applyPart2Rules(currentStones);
+      currentStones = currentStones.join(" ");
     }
+    currentStones = currentStones.split(" ");
+    // printStones(currentStones);
+    console.log(
+      `There are ${currentStones.length} stones in front of you after ${NBLINKS} blinks`
+    );
     throw new Error(`not finished`);
   }
 };
