@@ -63,6 +63,26 @@ const getRuleResult = (stone) => {
   }
 };
 
+/**
+ * See rules at top of code.
+ * Given a stone, this function tells us what replaces it.
+ *
+ * @param {*} stone
+ */
+const getRuleResultAsArray = (stone) => {
+  if (stone == "0") {
+    return [1];
+  } else if (stone.length % 2 == 0) {
+    // split in half:
+    const firstHalf = stone.substring(0, stone.length / 2);
+    const secondHalf = stone.substring(stone.length / 2, stone.length);
+    return [Number(firstHalf), Number(secondHalf)];
+  } else {
+    // multiply by 2024
+    return [stone * 2024];
+  }
+};
+
 // Input is an array
 const applyPart1Rules = (stones) => {
   const len = stones.length;
@@ -154,36 +174,47 @@ const runPart2UsingPart2 = (stones) => {
 
 // stones is an array
 const runUsingRecursion = (stones) => {
-  console.log(stones);
-  let value = "";
+  // console.log(stones);
+  let counter = 0;
+  let total = 0;
   for (i = 0; i < stones.length; i++) {
-    const counter = 0;
     let stone = stones[i];
-    value += " " + workOnStone(counter, stone);
-    console.log(`counter: ${JSON.stringify(counter)}`);
+    let x = workOnStone(counter, stone);
+    total += x;
   }
-  console.log(`value: ${JSON.stringify(value)}`);
+  console.log(`total: ${JSON.stringify(total)}`);
+  return total;
 };
 // 872*2024 = 1764928
 
+// Returns a number. Counter is a number, stone is a string
 const workOnStone = (counter, stone) => {
   if (counter >= NBLINKS) {
-    console.log(`Returning ${stone} counter=${counter}`);
-    return stone;
+    return 1;
   }
-  let result = "";
+  let retValue = 0;
+  // let result = " ";
   const ruleResult = getRuleResult(stone).split(" ");
-  console.log(`stone ${stone} ruleResult ${ruleResult} now counter=${counter}`);
   if (ruleResult.length > 1) {
-    console.log(`just before 0, counter=${counter}`);
-    result += " " + workOnStone(counter + 1, ruleResult[0]);
-    console.log(`just before 1, counter=${counter}`);
-    result += " " + workOnStone(counter + 1, ruleResult[1]);
+    // console.time("first");
+    let hlp1 = workOnStone(counter + 1, ruleResult[0]);
+    // result += " " + hlp1;
+    retValue += hlp1;
+    // console.timeEnd("first");
+    // console.time("second");
+    let hlp2 = workOnStone(counter + 1, ruleResult[1]);
+    // console.timeEnd("second");
+    // result += " " + hlp2;
+    retValue += hlp2;
   } else {
-    result += " " + workOnStone(counter + 1, ruleResult[0]);
+    // console.time("third");
+    let hlp3 = workOnStone(counter + 1, ruleResult[0]);
+    // result += " " + hlp3;
+    retValue += hlp3;
+    // console.timeEnd("third");
   }
-  console.log(`Going to return result ${result}`);
-  return result;
+  // console.log(`Counter was not too big, returning ${retValue}, counter ${counter}`);
+  return retValue; //result;
 };
 
 // part 1: node index.js input.txt 1 25
@@ -209,8 +240,6 @@ const main = async (fileName) => {
     console.log(
       `There are ${len} stones in front of you after ${NBLINKS} blinks`
     );
-
-    throw new Error(`not finished`);
   }
 };
 
