@@ -89,18 +89,20 @@ const incr = (i) => {
 };
 
 
-// If pushing left, dir is -1.
-// If pushing right, dir is +1.
-const pushBoxHorizontally = (robot, warehouseRow, dir) => {
-  const leftCol = robot.col + dir;
+// If pushing left, dir is -1 and horizontal is true
+// If pushing right, dir is +1 and horizontal is true
+// If pushing up, dir is -1 and horizontal is false
+// If pushing down, dir is +1 and horizontal is false
+const pushBoxHorizontally = (robot, warehouseRow, dir, horizontal) => {
+  const nextPos = horizontal ? robot.col + dir : robot.row + dir;
   const len = warehouseRow.length;
   let foundSpace = false;
   let spacePos = -1;
-  const fn = -1 ? decr : incr;
-  const cond = -1 ? (i) => { return i > 0 } :
+  const fn = dir == -1 ? decr : incr;
+  const cond = dir == -1 ? (i) => { return i > 0 } :
     (i) => { return i < len };
   // start just next to robot, and move away, searching for a space.
-  for (let i = leftCol; cond(i); i = fn(i)) {
+  for (let i = nextPos; cond(i); i = fn(i)) {
     if (isSpace(warehouseRow[i])) {
       // There is space to move a box to the left/right of the robot.
       foundSpace = true;
@@ -108,13 +110,14 @@ const pushBoxHorizontally = (robot, warehouseRow, dir) => {
       break;
     }
   }
+  console.log(`found space? ${foundSpace}`);
   if (foundSpace) {
     // starting at this space, swap everything from left to right OR
     // from right to left, depending on dir
-    const fn2 = -1 ? incr : decr;
-    const cond2 = -1 ? (i) => { return i < robot.col } :
+    const fn2 = dir == -1 ? incr : decr;
+    const cond2 = dir == -1 ? (i) => { return i < robot.col } :
       (i) => { return i > robot.col }; // TODO FIXME. Why is this not working?
-    for (let i = spacePos; i < robot.col; i = fn2(i)) {
+    for (let i = spacePos; cond2(i); i = fn2(i)) {
       console.log(`swap ${i} with ${i+1}`);
       swapCol(i, i-dir, warehouseRow);
     }
@@ -131,24 +134,30 @@ const moveRobotHorizontally = (robot, warehouseRow, dir) => {
   robot.col = nextPos; // update robot's col
 };
 
-// If moving left, dir is -1.
-// If moving right, dir is +1.
-const move = (robot, warehouse, dir) => {
-  const currentRow = robot.row;
-  const nextPos = robot.col + dir;
-  const nextObject = warehouse[currentRow][nextPos];
+// If moving left, dir is -1, horizontally is true
+// If moving right, dir is +1, horizontally is true
+// If moving up, dir is -1, horizontally is false
+// If moving down, dir is +1, horizontally is false
+const move = (robot, warehouse, dir, horizontally) => {
+  console.log(`horizontally ${horizontally}`);
+  // If moving right or left, find out which row in the warehouse to move in:
+  const currentPos = horizontally ? robot.row : robot.col;
+  // What is the next position that the robot moves to:
+  const nextPos = horizontally ? robot.col + dir : robot.row + dir;
+  const nextObject = horizontally ? warehouse[currentPos][nextPos] :
+    warehouse[nextPos][currentPos];
   if (isWall(nextObject)) {
     console.log(`is wall`);
     return;
   }
   if (isSpace(nextObject)) {
     console.log(`is space`);
-    moveRobotHorizontally(robot, warehouse[currentRow], dir);
+    moveRobotHorizontally(robot, warehouse[currentPos], dir, horizontally);
     return;
   }
   if (isBox(nextObject)) {
     console.log(`is box`);
-    pushBoxHorizontally(robot, warehouse[currentRow], dir);
+    pushBoxHorizontally(robot, warehouse[currentPos], dir, horizontally);
     return;
   }
   if (isRobot(nextObject)) {
@@ -178,19 +187,19 @@ const main = async (fileName) => {
     const map = {
       "<": move
     }
-    map["<"](robot, warehouse);
+    // map["<"](robot, warehouse);
     console.log(`original:`)
     printWarehouse(warehouse);
     const left = -1;
     const right = 1;
     for (let j = 0; j < 5; j++) {
       console.log(`move left:`);
-      move(robot, warehouse, left);
+      move(robot, warehouse, left, true);
       printWarehouse(warehouse);
     }
     for (let j = 0; j < 5; j++) {
       console.log(`move right:`);
-      move(robot, warehouse, right);
+      move(robot, warehouse, right, true);
       printWarehouse(warehouse);  
     }
   } else if (part == "2") {
