@@ -80,54 +80,78 @@ const isBox = (ch) => {
   return ch == "O";
 };
 
-const pushBoxLeft = (robot, warehouseRow) => {
-  const leftCol = robot.col-1;
+const decr = (i) => {
+  return i - 1;
+};
+
+const incr = (i) => {
+  return i + 1;
+};
+
+
+// If pushing left, dir is -1.
+// If pushing right, dir is +1.
+const pushBoxHorizontally = (robot, warehouseRow, dir) => {
+  const leftCol = robot.col + dir;
+  const len = warehouseRow.length;
   let foundSpace = false;
   let spacePos = -1;
-  for (let i = leftCol; i > 0; i--) {
+  const fn = -1 ? decr : incr;
+  const cond = -1 ? (i) => { return i > 0 } :
+    (i) => { return i < len };
+  // start just next to robot, and move away, searching for a space.
+  for (let i = leftCol; cond(i); i = fn(i)) {
     if (isSpace(warehouseRow[i])) {
-      // There is space to move a box to the left of the robot.
+      // There is space to move a box to the left/right of the robot.
       foundSpace = true;
       spacePos = i;
       break;
     }
   }
   if (foundSpace) {
-    // starting at this space, swap everything from left to right.
-    for (let i = spacePos; i < robot.col; i++) {
+    // starting at this space, swap everything from left to right OR
+    // from right to left, depending on dir
+    const fn2 = -1 ? incr : decr;
+    const cond2 = -1 ? (i) => { return i < robot.col } :
+      (i) => { return i > robot.col }; // TODO FIXME. Why is this not working?
+    for (let i = spacePos; i < robot.col; i = fn2(i)) {
       console.log(`swap ${i} with ${i+1}`);
-      swapCol(i, i+1, warehouseRow);
+      swapCol(i, i-dir, warehouseRow);
     }
-    robot.col--; // update robot's col
+    robot.col = robot.col + dir; // update robot's col
   }
 };
 
-const moveRobotLeft = (robot, warehouseRow) => {
-  const leftPos = robot.col-1;
+// If moving left, dir is -1.
+// If moving right, dir is +1.
+const moveRobotHorizontally = (robot, warehouseRow, dir) => {
+  const nextPos = robot.col + dir;
   // interchange these two elements in this row.
-  swapCol(leftPos, robot.col, warehouseRow);
-  robot.col = leftPos; // update robot's col
+  swapCol(nextPos, robot.col, warehouseRow);
+  robot.col = nextPos; // update robot's col
 };
 
-const moveLeft = (robot, warehouse) => {
+// If moving left, dir is -1.
+// If moving right, dir is +1.
+const move = (robot, warehouse, dir) => {
   const currentRow = robot.row;
-  const leftPos = robot.col - 1;
-  const leftOfRobot = warehouse[currentRow][leftPos];
-  if (isWall(leftOfRobot)) {
+  const nextPos = robot.col + dir;
+  const nextObject = warehouse[currentRow][nextPos];
+  if (isWall(nextObject)) {
     console.log(`is wall`);
     return;
   }
-  if (isSpace(leftOfRobot)) {
+  if (isSpace(nextObject)) {
     console.log(`is space`);
-    moveRobotLeft(robot, warehouse[currentRow]);
+    moveRobotHorizontally(robot, warehouse[currentRow], dir);
     return;
   }
-  if (isBox(leftOfRobot)) {
+  if (isBox(nextObject)) {
     console.log(`is box`);
-    pushBoxLeft(robot, warehouse[currentRow]);
+    pushBoxHorizontally(robot, warehouse[currentRow], dir);
     return;
   }
-  if (isRobot(leftOfRobot)) {
+  if (isRobot(nextObject)) {
     console.log(`oops`);
     throw new Error(`Not allowed`);
   }
@@ -152,26 +176,23 @@ const main = async (fileName) => {
   printWarehouse(warehouse);
   if (part == "1") {
     const map = {
-      "<": moveLeft
+      "<": move
     }
-    movements.forEach(el => {
-      console.log(el);
-    });
-    console.log(`move left:`);
     map["<"](robot, warehouse);
+    console.log(`original:`)
     printWarehouse(warehouse);
-    console.log(`move left again:`);
-    moveLeft(robot, warehouse);
-    printWarehouse(warehouse);
-    console.log(`move left again:`);
-    moveLeft(robot, warehouse);
-    printWarehouse(warehouse);
-    console.log(`move left again:`);
-    moveLeft(robot, warehouse);
-    printWarehouse(warehouse);
-    console.log(`move left again:`);
-    moveLeft(robot, warehouse);
-    printWarehouse(warehouse);
+    const left = -1;
+    const right = 1;
+    for (let j = 0; j < 5; j++) {
+      console.log(`move left:`);
+      move(robot, warehouse, left);
+      printWarehouse(warehouse);
+    }
+    for (let j = 0; j < 5; j++) {
+      console.log(`move right:`);
+      move(robot, warehouse, right);
+      printWarehouse(warehouse);  
+    }
   } else if (part == "2") {
   }
   throw new Error(`not done`);
