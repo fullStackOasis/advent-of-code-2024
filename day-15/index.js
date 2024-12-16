@@ -116,7 +116,7 @@ const pushBoxHorizontally = (robot, warehouseRow, dir, horizontal) => {
       break;
     }
   }
-  console.log(`found space? ${foundSpace}`);
+
   if (foundSpace) {
     // starting at this space, swap everything from left to right OR
     // from right to left, depending on dir
@@ -157,15 +157,13 @@ const moveRobotHorizontally = (robot, warehouseRow, dir, horizontally) => {
 // If moving up, dir is -1, horizontally is false
 // If moving down, dir is +1, horizontally is false
 const move = (robot, warehouse, dir, horizontally) => {
-  console.log(`horizontally ${horizontally}`);
+
   const getRow = (warehouse, col) => {
     const result = [];
     const len = warehouse[0].length;
     for (let i = 0; i < len; i++) {
-      // console.log(col + " " + i);
       result.push(warehouse[i][col]);
     }
-    console.log(`result: ${JSON.stringify(result)}`);
     return result;
   }
   const row = horizontally ? warehouse[robot.row] :
@@ -175,19 +173,18 @@ const move = (robot, warehouse, dir, horizontally) => {
   // What is the next position that the robot moves to:
   const nextPos = horizontally ? robot.col + dir : robot.row + dir;
   const nextObject = row[nextPos];
-  console.log(`What is nextObject? ${nextObject} and what is robot ${JSON.stringify(robot)}`);
+
   if (isWall(nextObject)) {
-    console.log(`is wall`);
+    // console.log(`is wall`);
     return;
   }
   if (isSpace(nextObject)) {
-    console.log(`is space`);
-    console.log(row);
+    // console.log(`is space`);
+
     moveRobotHorizontally(robot, row, dir, horizontally);
     if (!horizontally) {
       const len = warehouse.length;
       for (let i = 0; i < len; i++) {
-        console.log(row[i]);
         warehouse[i][robot.col] = row[i];
       }
     }
@@ -218,7 +215,7 @@ const swapCol = (x1, x2, arr, horizontally) => {
     const hlp = arr[x1];
     arr[x1] = arr[x2];
     arr[x2] = hlp;
-    console.log(`After swapping, the array is ${JSON.stringify(arr)}`);
+    // console.log(`After swapping, the array is ${JSON.stringify(arr)}`);
   }
 };
 
@@ -228,11 +225,8 @@ const getGPS = (warehouse) => {
     row.forEach((col, i) => { // i is distance from top
       const ch = warehouse[i][j];
       if (isBox(ch)) {
-        // sum
-        console.log(`O? warehouse[${i}][${j}] is ${ch}`);
         total += 100 * i + j;
       }
-      // console.log(`O? ${i} ${j} ${ch}`);
     });
   });
   return total;
@@ -242,7 +236,6 @@ const getGPS = (warehouse) => {
 // part 2: node index.js input.txt 2
 const main = async (fileName) => {
   const { robot, warehouse, movements } = await readData(fileName);
-  //console.log(JSON.stringify(robots, '', ''));
   printWarehouse(warehouse);
   if (part == "1") {
     console.log(`original:`)
@@ -257,37 +250,12 @@ const main = async (fileName) => {
     };
     movements.forEach((movement, i) => {
       const obj = map[movement];
-      console.log(i+1 + " " + JSON.stringify(obj));
+      // console.log(i+1 + " " + JSON.stringify(obj));
       move(robot, warehouse, obj.dir, obj.horizontally);
-      printWarehouse(warehouse, robot);
+      // printWarehouse(warehouse, robot);
     });
-    /*
-    move(robot, warehouse, right, false);
-    printWarehouse(warehouse);
-    */
-    /*
-    printWarehouse(warehouse);  
-    // map["<"](robot, warehouse);
-    for (let j = 0; j < 5; j++) {
-      console.log(`move left:`);
-      move(robot, warehouse, left, false);
-      printWarehouse(warehouse);
-    }
-      */
     const gps = getGPS(warehouse);
     console.log(`Total GPS is ${gps}`);
-    /*
-    for (let j = 0; j < 5; j++) {
-      console.log(`move right:`);
-      move(robot, warehouse, right, true);
-      printWarehouse(warehouse);  
-    }
-    for (let j = 0; j < 2; j++) {
-      console.log(`move up:`);
-      move(robot, warehouse, left, false);
-      printWarehouse(warehouse);  
-    }
-      */
   } else if (part == "2") {
   }
   throw new Error(`not done`);
