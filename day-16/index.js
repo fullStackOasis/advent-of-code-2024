@@ -1,6 +1,6 @@
 /**
  * Advent of Code, day 16.
- * 
+ *
  * The reindeer race.
  */
 const fs = require("fs").promises;
@@ -33,7 +33,7 @@ const readData = async (fileName) => {
           end = { row, col };
         }
         const obj = {
-          ch
+          ch,
         };
         result[row].push(obj);
       }
@@ -44,8 +44,19 @@ const readData = async (fileName) => {
   }
 };
 
-const processData = (map) => {
+const clean = (map) => {
+  const len = map.length;
+  for (let row = 0; row < len; row++) {
+    for (let col = 0; col < len; col++) {
+      delete map[row][col].breadcrumb;
+    }
+  }
+};
 
+const processData = (map) => {};
+
+const moveNotAllowed = (obj) => {
+  return obj.breadcrumb || obj.ch == "#" || obj.deadend;
 };
 
 const goWest = (me, map) => {
@@ -53,7 +64,8 @@ const goWest = (me, map) => {
   const r = me.row;
   const c = me.col - 1;
   const obj = map[r][c]; // TODO FIXME check for edges of map
-  if (obj.breadcrumb || obj.ch == "#") { // TODO FIXME any other characters to watch for?
+  if (moveNotAllowed(obj)) {
+    // TODO FIXME any other characters to watch for?
     return false;
   }
   return c;
@@ -64,7 +76,8 @@ const goEast = (me, map) => {
   const r = me.row;
   const c = me.col + 1;
   const obj = map[r][c]; // TODO FIXME check for edges of map
-  if (obj.breadcrumb || obj.ch == "#") { // TODO FIXME any other characters to watch for?
+  if (moveNotAllowed(obj)) {
+    // TODO FIXME any other characters to watch for?
     return false;
   }
   return c;
@@ -75,21 +88,23 @@ const goSouth = (me, map) => {
   const r = me.row + 1;
   const c = me.col;
   const obj = map[r][c]; // TODO FIXME check for edges of map
-  if (obj.breadcrumb || obj.ch == "#") { // TODO FIXME any other characters to watch for?
+  if (moveNotAllowed(obj)) {
+    // TODO FIXME any other characters to watch for?
     return false;
   }
   return r;
 };
 
 const goNorth = (me, map) => {
-    // take one step north
-    const r = me.row - 1;
-    const c = me.col;
-    const obj = map[r][c]; // TODO FIXME check for edges of map
-    if (obj.breadcrumb || obj.ch == "#") { // TODO FIXME any other characters to watch for?
-      return false;
-    }
-    return r;
+  // take one step north
+  const r = me.row - 1;
+  const c = me.col;
+  const obj = map[r][c]; // TODO FIXME check for edges of map
+  if (moveNotAllowed(obj)) {
+    // TODO FIXME any other characters to watch for?
+    return false;
+  }
+  return r;
 };
 
 // Apply an algorithm to go from the start at "S" to the end
@@ -103,7 +118,7 @@ const goToEnd = (start, end, map) => {
   let done = false;
   const me = {
     row: start.row,
-    col: start.col
+    col: start.col,
   };
   while (!done) {
     process.stdout.write(JSON.stringify(me));
@@ -131,11 +146,15 @@ const goToEnd = (start, end, map) => {
       map[me.row][me.col].breadcrumb = true;
       continue;
     }
+    map[me.row][me.col].deadend = true;
     done = true;
   }
+  clean(map);
   console.log(`Done: location is ${JSON.stringify(me)}`);
-  console.log(`Done: map at location is ${JSON.stringify(map[me.row][me.col])}`);
-}
+  console.log(
+    `Done: map at location is ${JSON.stringify(map[me.row][me.col])}`
+  );
+};
 
 // part 1: node index.js input.txt 1
 // part 2: node index.js input.txt 2
