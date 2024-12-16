@@ -52,7 +52,32 @@ const processData = (map) => {
 const goToEnd = (start, end, map) => {
   let n = map.length;
   // Stab at the algorithm for walking a path through the map.
-  
+  // Suppose you can only go NORTH.
+  const row = start.row;
+  const col = start.col;
+  console.log(map[row][col]);
+  let done = false;
+  const me = {
+    row: start.row,
+    col: start.col
+  };
+  while (!done) {
+    // take one step north
+    const r = me.row - 1;
+    console.log(r);
+    const c = me.col;
+    console.log(c);
+    const obj = map[r][c]; // TODO FIXME check for edges of map
+    if (obj.ch == "#") { // TODO FIXME any other characters to watch for?
+      console.log(`x`);
+      done = true;
+    } else {
+      me.row = r;
+      me.col = c;
+    }
+  }
+  console.log(`Done: location is ${JSON.stringify(me)}`);
+  console.log(`Done: map at location is ${JSON.stringify(map[me.row][me.col])}`);
 }
 
 // part 1: node index.js input.txt 1
