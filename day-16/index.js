@@ -66,7 +66,7 @@ const clean = (map) => {
 const processData = (map) => {};
 
 const moveNotAllowed = (obj) => {
-  if (obj.ch == "E") throw new Error(`Found end`);
+  // if (obj.ch == "E") throw new Error(`Found end`);
   return obj.breadcrumb || obj.ch == "#" || obj.deadend;
 };
 
@@ -118,48 +118,78 @@ const goNorth = (me, map) => {
   return r;
 };
 
+const atEnd = (me, map) => {
+  const r = me.row;
+  const c = me.col;
+  const obj = map[r][c];
+  return (obj.ch == "E");
+}
+
 // Apply an algorithm to go from the start at "S" to the end
 const goToEnd = (start, end, map) => {
   let n = map.length;
   // Stab at the algorithm for walking a path through the map.
-  const row = start.row;
-  const col = start.col;
   let done = false;
   const me = {
     row: start.row,
     col: start.col,
   };
+  const prev = { row: me.row, col: me.col };
   while (!done) {
     let r = goNorth(me, map);
     if (r !== false) {
+      prev.row = me.row;
       me.row = r;
-      map[me.row][me.col].breadcrumb = true;
+      if (atEnd(me, map)) {
+        done = true;
+      } else {
+        map[me.row][me.col].breadcrumb = true;
+      }
       continue;
     }
     r = goSouth(me, map);
     if (r !== false) {
+      prev.row = me.row;
       me.row = r;
-      map[me.row][me.col].breadcrumb = true;
+      if (atEnd(me, map)) {
+        done = true;
+      } else {
+        map[me.row][me.col].breadcrumb = true;
+      }
       continue;
     }
     let c = goEast(me, map);
     if (c !== false) {
+      prev.col = me.col;
       me.col = c;
-      map[me.row][me.col].breadcrumb = true;
+      if (atEnd(me, map)) {
+        done = true;
+      } else {
+        map[me.row][me.col].breadcrumb = true;
+      }
       continue;
     }
     c = goWest(me, map);
     if (c !== false) {
+      prev.col = me.col;
       me.col = c;
-      map[me.row][me.col].breadcrumb = true;
+      if (atEnd(me, map)) {
+        done = true;
+      } else {
+        map[me.row][me.col].breadcrumb = true;
+      }
       continue;
     }
-    map[me.row][me.col].deadend = true;
-    map[me.row][me.col].ch = "#";
+    if (!atEnd(me, map)) {
+      map[me.row][me.col].ch = "#";
+      map[me.row][me.col].deadend = true;
+    } else {
+      console.log(`|${map[me.row][me.col].ch} ${JSON.stringify(prev)}|`);
+    }
     done = true;
   }
   clean(map);
-  return true;
+  return map[me.row][me.col].ch == "E";
 };
 
 // part 1: node index.js input.txt 1
@@ -169,11 +199,21 @@ const main = async (fileName) => {
   // console.log(JSON.stringify(map));
   if (part == "1") {
     let counter = 0;
-    while (counter < 100) {
-      goToEnd(start, end, map);
+    let nCompletePaths = 0;
+    let nDeadendPaths = 0;
+    const countermax = 500;
+    while (counter < countermax) {
+      const found1 = goToEnd(start, end, map);
+      if (found1) {
+        nCompletePaths++;
+      } else {
+        nDeadendPaths++;
+      }
       counter++;
     }
     print(map);
+    console.log(`nCompletePaths ${nCompletePaths}`);
+    console.log(`nDeadendPaths ${nDeadendPaths}`);
   } else if (part == "2") {
   }
   throw new Error(`not done`);
