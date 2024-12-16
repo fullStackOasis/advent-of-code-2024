@@ -48,6 +48,50 @@ const processData = (map) => {
 
 };
 
+const goWest = (me, map) => {
+  // take one step north
+  const r = me.row;
+  const c = me.col - 1;
+  const obj = map[r][c]; // TODO FIXME check for edges of map
+  if (obj.breadcrumb || obj.ch == "#") { // TODO FIXME any other characters to watch for?
+    return false;
+  }
+  return c;
+};
+
+const goEast = (me, map) => {
+  // take one step north
+  const r = me.row;
+  const c = me.col + 1;
+  const obj = map[r][c]; // TODO FIXME check for edges of map
+  if (obj.breadcrumb || obj.ch == "#") { // TODO FIXME any other characters to watch for?
+    return false;
+  }
+  return c;
+};
+
+const goSouth = (me, map) => {
+  // take one step north
+  const r = me.row + 1;
+  const c = me.col;
+  const obj = map[r][c]; // TODO FIXME check for edges of map
+  if (obj.breadcrumb || obj.ch == "#") { // TODO FIXME any other characters to watch for?
+    return false;
+  }
+  return r;
+};
+
+const goNorth = (me, map) => {
+    // take one step north
+    const r = me.row - 1;
+    const c = me.col;
+    const obj = map[r][c]; // TODO FIXME check for edges of map
+    if (obj.breadcrumb || obj.ch == "#") { // TODO FIXME any other characters to watch for?
+      return false;
+    }
+    return r;
+};
+
 // Apply an algorithm to go from the start at "S" to the end
 const goToEnd = (start, end, map) => {
   let n = map.length;
@@ -62,19 +106,32 @@ const goToEnd = (start, end, map) => {
     col: start.col
   };
   while (!done) {
-    // take one step north
-    const r = me.row - 1;
-    console.log(r);
-    const c = me.col;
-    console.log(c);
-    const obj = map[r][c]; // TODO FIXME check for edges of map
-    if (obj.ch == "#") { // TODO FIXME any other characters to watch for?
-      console.log(`x`);
-      done = true;
-    } else {
+    process.stdout.write(JSON.stringify(me));
+    let r = goNorth(me, map);
+    if (r !== false) {
       me.row = r;
-      me.col = c;
+      map[me.row][me.col].breadcrumb = true;
+      continue;
     }
+    r = goSouth(me, map);
+    if (r !== false) {
+      me.row = r;
+      map[me.row][me.col].breadcrumb = true;
+      continue;
+    }
+    let c = goEast(me, map);
+    if (c !== false) {
+      me.col = c;
+      map[me.row][me.col].breadcrumb = true;
+      continue;
+    }
+    c = goWest(me, map);
+    if (c !== false) {
+      me.col = c;
+      map[me.row][me.col].breadcrumb = true;
+      continue;
+    }
+    done = true;
   }
   console.log(`Done: location is ${JSON.stringify(me)}`);
   console.log(`Done: map at location is ${JSON.stringify(map[me.row][me.col])}`);
