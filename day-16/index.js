@@ -44,6 +44,16 @@ const readData = async (fileName) => {
   }
 };
 
+const print = (map) => {
+  const len = map.length;
+  for (let row = 0; row < len; row++) {
+    for (let col = 0; col < len; col++) {
+      process.stdout.write(map[row][col].ch);
+    }
+    console.log("");
+  }
+};
+
 const clean = (map) => {
   const len = map.length;
   for (let row = 0; row < len; row++) {
@@ -56,6 +66,7 @@ const clean = (map) => {
 const processData = (map) => {};
 
 const moveNotAllowed = (obj) => {
+  if (obj.ch == "E") throw new Error(`Found end`);
   return obj.breadcrumb || obj.ch == "#" || obj.deadend;
 };
 
@@ -111,17 +122,14 @@ const goNorth = (me, map) => {
 const goToEnd = (start, end, map) => {
   let n = map.length;
   // Stab at the algorithm for walking a path through the map.
-  // Suppose you can only go NORTH.
   const row = start.row;
   const col = start.col;
-  console.log(map[row][col]);
   let done = false;
   const me = {
     row: start.row,
     col: start.col,
   };
   while (!done) {
-    process.stdout.write(JSON.stringify(me));
     let r = goNorth(me, map);
     if (r !== false) {
       me.row = r;
@@ -147,13 +155,11 @@ const goToEnd = (start, end, map) => {
       continue;
     }
     map[me.row][me.col].deadend = true;
+    map[me.row][me.col].ch = "#";
     done = true;
   }
   clean(map);
-  console.log(`Done: location is ${JSON.stringify(me)}`);
-  console.log(
-    `Done: map at location is ${JSON.stringify(map[me.row][me.col])}`
-  );
+  return true;
 };
 
 // part 1: node index.js input.txt 1
@@ -162,7 +168,12 @@ const main = async (fileName) => {
   const { map, start, end } = await readData(fileName);
   // console.log(JSON.stringify(map));
   if (part == "1") {
-    goToEnd(start, end, map);
+    let counter = 0;
+    while (counter < 100) {
+      goToEnd(start, end, map);
+      counter++;
+    }
+    print(map);
   } else if (part == "2") {
   }
   throw new Error(`not done`);
