@@ -34,6 +34,8 @@ const readData = async (fileName) => {
         }
         const obj = {
           ch,
+          row,
+          col
         };
         result[row].push(obj);
       }
@@ -63,7 +65,55 @@ const clean = (map) => {
   }
 };
 
-const processData = (map) => {};
+// create a tree of data
+const packageData = (map) => {
+  let counter = 0;
+  const len = map[0].length;
+  console.log(len);
+  const objectsMap = {};
+  for (let row = len-2; row > 0; row--) {
+    for (let col = 1; col < len-1; col++) {
+      const obj = {
+        counter,
+      };
+      objectsMap[counter] = obj;
+      counter++;
+      process.stdout.write(map[row][col].ch);
+      // process.stdout.write(JSON.stringify(obj));
+    }
+    console.log("");
+  }
+
+  counter = 0;
+  for (let row = len-2; row > 0; row--) {
+    for (let col = 1; col < len-1; col++) {
+      const obj = objectsMap[counter];
+      const north = map[row-1][col];
+      if (north.ch != "#") {
+        obj.north = north;
+      }
+      const east  = map[row][col+1];
+      if (east.ch != "#") {
+        obj.east = east;
+      }
+      const south = map[row+1][col];
+      if (south.ch != "#") {
+        obj.south = south;
+      }
+      const west  = map[row][col-1];
+      if (west.ch != "#") {
+        obj.west = west;
+      }
+      counter++;
+      // process.stdout.write(map[row][col].ch);
+      process.stdout.write(JSON.stringify(obj));
+    }
+    console.log("");
+  }
+
+  console.log(JSON.stringify(objectsMap[10]));
+  return objectsMap;
+};
 
 const moveNotAllowed = (obj) => {
   // if (obj.ch == "E") throw new Error(`Found end`);
@@ -192,28 +242,34 @@ const goToEnd = (start, end, map) => {
   return map[me.row][me.col].ch == "E";
 };
 
+const runWhile = (map, start, end) => {
+  let counter = 0;
+  let nCompletePaths = 0;
+  let nDeadendPaths = 0;
+  const countermax = 500;
+  while (counter < countermax) {
+    const found1 = goToEnd(start, end, map);
+    if (found1) {
+      nCompletePaths++;
+    } else {
+      nDeadendPaths++;
+    }
+    counter++;
+  }
+  print(map);
+  console.log(`nCompletePaths ${nCompletePaths}`);
+  console.log(`nDeadendPaths ${nDeadendPaths}`);
+};
+
 // part 1: node index.js input.txt 1
 // part 2: node index.js input.txt 2
 const main = async (fileName) => {
   const { map, start, end } = await readData(fileName);
   // console.log(JSON.stringify(map));
   if (part == "1") {
-    let counter = 0;
-    let nCompletePaths = 0;
-    let nDeadendPaths = 0;
-    const countermax = 500;
-    while (counter < countermax) {
-      const found1 = goToEnd(start, end, map);
-      if (found1) {
-        nCompletePaths++;
-      } else {
-        nDeadendPaths++;
-      }
-      counter++;
-    }
-    print(map);
-    console.log(`nCompletePaths ${nCompletePaths}`);
-    console.log(`nDeadendPaths ${nDeadendPaths}`);
+    packageData(map);
+    // first attempt.
+    // runWhile(map, start, end);
   } else if (part == "2") {
   }
   throw new Error(`not done`);
